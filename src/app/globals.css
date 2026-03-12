@@ -1,19 +1,28 @@
 @import "tailwindcss";
 
+/* Remove these lines as they're replaced by @import "tailwindcss" */
+/* @tailwind base; */
+/* @tailwind components; */
+/* @tailwind utilities; */
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-300;
+  }
+}
+
 .blinking-cursor {
   font-weight: 100;
   font-size: 1.5rem;
-  color: #7e22ce; /* matching purple */
+  color: #7e22ce;
   animation: blink 0.7s infinite;
 }
 
 @keyframes blink {
-  0% { opacity: 1; }
+  0%, 100% { opacity: 1; }
   50% { opacity: 0; }
-  100% { opacity: 1; }
 }
 
-/* In your globals.css */
 @keyframes pulse-slow {
   0%, 100% {
     opacity: 0.6;
@@ -28,3 +37,39 @@
 .animate-pulse-slow {
   animation: pulse-slow 3s ease-in-out infinite;
 }
+
+/* Custom scrollbar for dark/light mode */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gradient-to-b from-purple-400 to-indigo-400 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply from-purple-500 to-indigo-500;
+}
+
+/* Smooth theme transition */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Glassmorphism effects */
+.glass {
+  @apply bg-white/70 dark:bg-gray-900/70 backdrop-blur-md;
+}
+
+.glass-card {
+  @apply bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700;
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text;
+} 

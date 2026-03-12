@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
 import * as Icons from "react-icons/fa";
 import { useRef, useState, useCallback, useEffect } from "react";
+import { useTheme } from "@/context/ThemeContext";
 
 // ==================== PRODUCT DATA ====================
 const products = [
@@ -122,218 +123,344 @@ const Icon = ({ name, className = "" }) => {
   return IconComponent ? <IconComponent className={className} /> : null;
 };
 
-// ==================== STUNNING BACKGROUND ====================
-const StunningBackground = () => {
-  // Fixed positions for particles (no randomness for hydration)
+// ==================== STUNNING BACKGROUND - THEME AWARE ====================
+const StunningBackground = ({ isDarkMode }) => {
+  // Fixed positions for particles
   const particles = [
-    { id: 1, left: "10%", top: "15%", size: 2, delay: 0 },
-    { id: 2, left: "20%", top: "45%", size: 3, delay: 0.5 },
-    { id: 3, left: "30%", top: "75%", size: 1.5, delay: 1 },
-    { id: 4, left: "40%", top: "25%", size: 2.5, delay: 1.5 },
-    { id: 5, left: "50%", top: "85%", size: 2, delay: 2 },
-    { id: 6, left: "60%", top: "35%", size: 3, delay: 2.5 },
-    { id: 7, left: "70%", top: "65%", size: 1.5, delay: 3 },
-    { id: 8, left: "80%", top: "95%", size: 2, delay: 3.5 },
-    { id: 9, left: "90%", top: "5%", size: 2.5, delay: 4 },
-    { id: 10, left: "15%", top: "55%", size: 2, delay: 4.5 },
+    { id: 0, left: 10, top: 20, size: 2, type: 0, delay: 0 },
+    { id: 1, left: 25, top: 45, size: 3, type: 1, delay: 0.5 },
+    { id: 2, left: 40, top: 70, size: 1.5, type: 2, delay: 1 },
+    { id: 3, left: 55, top: 15, size: 2.5, type: 0, delay: 1.5 },
+    { id: 4, left: 70, top: 85, size: 2, type: 1, delay: 2 },
+    { id: 5, left: 85, top: 30, size: 3.5, type: 2, delay: 2.5 },
+    { id: 6, left: 15, top: 60, size: 2, type: 0, delay: 3 },
+    { id: 7, left: 45, top: 90, size: 2.5, type: 1, delay: 3.5 },
+    { id: 8, left: 65, top: 40, size: 3, type: 2, delay: 4 },
+    { id: 9, left: 95, top: 75, size: 1.5, type: 0, delay: 4.5 },
+    { id: 10, left: 5, top: 50, size: 2, type: 1, delay: 5 },
+    { id: 11, left: 35, top: 25, size: 2.5, type: 2, delay: 5.5 },
+    { id: 12, left: 75, top: 10, size: 3, type: 0, delay: 6 },
+    { id: 13, left: 50, top: 95, size: 2, type: 1, delay: 6.5 },
+    { id: 14, left: 20, top: 80, size: 2.5, type: 2, delay: 7 },
   ];
 
-  // Fixed positions for orbs
-  const orbs = [
-    { id: 1, size: 400, left: "-100px", top: "-100px", color: "from-purple-600/20", delay: 0 },
-    { id: 2, size: 500, left: "60%", top: "20%", color: "from-blue-600/20", delay: 2 },
-    { id: 3, size: 350, left: "70%", top: "70%", color: "from-pink-600/20", delay: 4 },
-    { id: 4, size: 450, left: "10%", top: "60%", color: "from-cyan-600/20", delay: 1 },
-    { id: 5, size: 300, left: "80%", top: "10%", color: "from-amber-600/20", delay: 3 },
+  // Fixed lines for SSR
+  const lines = [
+    { id: 0, x1: 10, y1: 20, x2: 30, y2: 40 },
+    { id: 1, x1: 50, y1: 60, x2: 70, y2: 80 },
+    { id: 2, x1: 80, y1: 10, x2: 40, y2: 50 },
+    { id: 3, x1: 20, y1: 70, x2: 90, y2: 30 },
+    { id: 4, x1: 60, y1: 40, x2: 30, y2: 85 },
+    { id: 5, x1: 45, y1: 15, x2: 75, y2: 65 },
+    { id: 6, x1: 85, y1: 55, x2: 25, y2: 95 },
+    { id: 7, x1: 15, y1: 35, x2: 55, y2: 75 },
   ];
 
-  // Fixed positions for stars
-  const stars = Array.from({ length: 50 }).map((_, i) => ({
+  // Fixed stars for SSR - theme aware colors
+  const stars = Array.from({ length: 50 }, (_, i) => ({
     id: i,
-    left: `${(i * 7) % 100}%`,
-    top: `${(i * 13) % 100}%`,
-    size: (i % 3) + 1,
+    x: (i * 7) % 100,
+    y: (i * 13) % 100,
+    size: ((i % 3) + 1) * 0.5,
     delay: (i % 5) * 0.2,
   }));
+
+  // Fixed orbs for SSR - theme aware colors
+  const orbs = [
+    { id: 0, left: 10, top: 20, width: 250, height: 250, color: 'purple', delay: 0 },
+    { id: 1, left: 70, top: 60, width: 200, height: 200, color: 'pink', delay: 2 },
+    { id: 2, left: 40, top: 30, width: 300, height: 300, color: 'blue', delay: 4 },
+    { id: 3, left: 80, top: 10, width: 220, height: 220, color: 'purple', delay: 1 },
+    { id: 4, left: 20, top: 80, width: 280, height: 280, color: 'pink', delay: 3 },
+    { id: 5, left: 55, top: 45, width: 180, height: 180, color: 'blue', delay: 5 },
+  ];
+
+  // Fixed clouds for SSR - theme aware colors
+  const clouds = [
+    { id: 0, left: 5, top: 10, width: 400, height: 400, color: 'purple' },
+    { id: 1, left: 35, top: 40, width: 400, height: 400, color: 'pink' },
+    { id: 2, left: 65, top: 20, width: 400, height: 400, color: 'blue' },
+    { id: 3, left: 25, top: 70, width: 400, height: 400, color: 'purple' },
+  ];
+
+  // Theme-aware base gradient
+  const baseGradient = isDarkMode
+    ? "from-slate-950 via-purple-950/30 to-slate-950"
+    : "from-blue-50 via-purple-50/30 to-indigo-50";
+
+  // Theme-aware radial gradients
+  const radialTopLeft = isDarkMode
+    ? "from-purple-900/40 via-transparent to-transparent"
+    : "from-purple-400/30 via-transparent to-transparent";
+  
+  const radialBottomRight = isDarkMode
+    ? "from-blue-900/40 via-transparent to-transparent"
+    : "from-blue-400/30 via-transparent to-transparent";
+  
+  const radialCenter = isDarkMode
+    ? "from-pink-900/20 via-transparent to-transparent"
+    : "from-pink-400/20 via-transparent to-transparent";
+
+  // Theme-aware vignette
+  const vignetteColor = isDarkMode
+    ? "rgba(0,0,0,0.5)"
+    : "rgba(255,255,255,0.5)";
 
   return (
     <div className="absolute inset-0 overflow-hidden">
       {/* Base Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-950" />
+      <div className={`absolute inset-0 bg-gradient-to-br ${baseGradient}`} />
       
       {/* Animated Gradient Mesh */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-purple-900/40 via-transparent to-transparent animate-pulse" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-blue-900/40 via-transparent to-transparent animate-pulse delay-1000" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-pink-900/20 via-transparent to-transparent animate-pulse delay-2000" />
+        <motion.div 
+          className={`absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] ${radialTopLeft}`}
+          animate={{ opacity: isDarkMode ? [0.2, 0.4, 0.2] : [0.1, 0.2, 0.1] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className={`absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] ${radialBottomRight}`}
+          animate={{ opacity: isDarkMode ? [0.2, 0.4, 0.2] : [0.1, 0.2, 0.1] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        />
+        <motion.div 
+          className={`absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] ${radialCenter}`}
+          animate={{ opacity: isDarkMode ? [0.1, 0.3, 0.1] : [0.05, 0.15, 0.05] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        />
       </div>
 
       {/* Floating Orbs with Trails */}
       {orbs.map((orb) => (
         <motion.div
-          key={orb.id}
-          className={`absolute rounded-full bg-gradient-to-br ${orb.color} to-transparent blur-3xl`}
+          key={`orb-${orb.id}`}
+          className="absolute rounded-full blur-3xl"
           style={{
-            width: orb.size,
-            height: orb.size,
-            left: orb.left,
-            top: orb.top,
+            width: orb.width,
+            height: orb.height,
+            background: `radial-gradient(circle at center, 
+              ${orb.color === 'purple' 
+                ? (isDarkMode ? '#8b5cf6' : '#c084fc') 
+                : orb.color === 'pink' 
+                ? (isDarkMode ? '#ec4899' : '#f9a8d4') 
+                : (isDarkMode ? '#3b82f6' : '#93c5fd')}${isDarkMode ? '40' : '30'}, 
+              transparent 70%)`,
+            left: `${orb.left}%`,
+            top: `${orb.top}%`,
           }}
           animate={{
-            x: [0, 50, -30, 0],
-            y: [0, -30, 50, 0],
-            scale: [1, 1.2, 0.9, 1],
-            opacity: [0.3, 0.5, 0.3, 0.4],
+            x: [0, orb.id % 2 === 0 ? 50 : -40, 0],
+            y: [0, orb.id % 3 === 0 ? -40 : 30, 0],
+            scale: [1, 1.3, 1],
+            opacity: isDarkMode ? [0.3, 0.6, 0.3] : [0.2, 0.4, 0.2],
           }}
           transition={{
-            duration: 15,
+            duration: 15 + orb.id,
             repeat: Infinity,
-            delay: orb.delay,
             ease: "easeInOut",
           }}
         />
       ))}
 
-      {/* Glowing Particles */}
-      {particles.map((particle) => (
-        <motion.div
-          key={particle.id}
-          className="absolute rounded-full"
-          style={{
-            width: particle.size,
-            height: particle.size,
-            left: particle.left,
-            top: particle.top,
-            background: `radial-gradient(circle, ${
-              particle.id % 3 === 0 ? '#9333EA' : particle.id % 3 === 1 ? '#3B82F6' : '#EC4899'
-            }, transparent)`,
-            boxShadow: `0 0 ${
-              particle.size * 4
-            }px ${
-              particle.id % 3 === 0 ? '#9333EA' : particle.id % 3 === 1 ? '#3B82F6' : '#EC4899'
-            }`,
-          }}
-          animate={{
-            y: [0, -20, 0, 20, 0],
-            x: [0, 10, 0, -10, 0],
-            scale: [1, 1.3, 1, 0.8, 1],
-            opacity: [0.4, 0.8, 0.4, 0.6, 0.4],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            delay: particle.delay,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-
-      {/* Twinkling Stars */}
-      {stars.map((star) => (
-        <motion.div
-          key={star.id}
-          className="absolute rounded-full bg-white"
-          style={{
-            width: star.size,
-            height: star.size,
-            left: star.left,
-            top: star.top,
-          }}
-          animate={{
-            opacity: [0.2, 0.8, 0.2],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            delay: star.delay,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-
-      {/* Animated Grid Lines */}
-      <svg className="absolute inset-0 w-full h-full opacity-20">
-        <defs>
-          <pattern id="grid" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="url(#grid-gradient)" strokeWidth="0.5" />
-          </pattern>
-          <linearGradient id="grid-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#9333EA">
-              <animate 
-                attributeName="stop-color" 
-                values="#9333EA; #3B82F6; #EC4899; #9333EA" 
-                dur="8s" 
-                repeatCount="indefinite" 
-              />
-            </stop>
-            <stop offset="50%" stopColor="#3B82F6">
-              <animate 
-                attributeName="stop-color" 
-                values="#3B82F6; #EC4899; #9333EA; #3B82F6" 
-                dur="8s" 
-                repeatCount="indefinite" 
-              />
-            </stop>
-            <stop offset="100%" stopColor="#EC4899">
-              <animate 
-                attributeName="stop-color" 
-                values="#EC4899; #9333EA; #3B82F6; #EC4899" 
-                dur="8s" 
-                repeatCount="indefinite" 
-              />
-            </stop>
-          </linearGradient>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
-      </svg>
-
-      {/* Energy Waves at Bottom */}
-      <svg className="absolute bottom-0 left-0 w-full opacity-30">
-        {[1, 2, 3].map((i) => (
-          <motion.path
-            key={i}
-            d={`M0,${100 - i * 20} Q200,${50 - i * 10} 400,${100 - i * 20} T800,${100 - i * 20} T1200,${100 - i * 20}`}
-            stroke={`url(#wave-gradient-${i})`}
-            strokeWidth="2"
-            fill="none"
-            animate={{
-              d: [
-                `M0,${100 - i * 20} Q200,${50 - i * 10} 400,${100 - i * 20} T800,${100 - i * 20} T1200,${100 - i * 20}`,
-                `M0,${120 - i * 20} Q200,${70 - i * 10} 400,${120 - i * 20} T800,${120 - i * 20} T1200,${120 - i * 20}`,
-                `M0,${80 - i * 20} Q200,${30 - i * 10} 400,${80 - i * 20} T800,${80 - i * 20} T1200,${80 - i * 20}`,
-              ],
-            }}
+      {/* Animated constellation lines */}
+      <svg className="absolute inset-0 w-full h-full" style={{ opacity: isDarkMode ? 0.2 : 0.1 }}>
+        {lines.map((line) => (
+          <motion.line
+            key={`line-${line.id}`}
+            x1={`${line.x1}%`}
+            y1={`${line.y1}%`}
+            x2={`${line.x2}%`}
+            y2={`${line.y2}%`}
+            stroke={`url(#lineGrad-${line.id % 3})`}
+            strokeWidth="0.5"
+            strokeDasharray="5,5"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
             transition={{
-              duration: 5,
+              duration: 15 + line.id,
               repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.5,
+              delay: line.id * 0.5,
+              repeatType: "reverse"
             }}
           />
         ))}
         <defs>
-          {[1, 2, 3].map((i) => (
-            <linearGradient key={i} id={`wave-gradient-${i}`} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#9333EA" />
-              <stop offset="50%" stopColor="#3B82F6" />
-              <stop offset="100%" stopColor="#EC4899" />
-            </linearGradient>
-          ))}
+          <linearGradient id="lineGrad-0" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor={isDarkMode ? "#8b5cf6" : "#c084fc"} />
+            <stop offset="100%" stopColor={isDarkMode ? "#ec4899" : "#f9a8d4"} />
+          </linearGradient>
+          <linearGradient id="lineGrad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={isDarkMode ? "#3b82f6" : "#93c5fd"} />
+            <stop offset="100%" stopColor={isDarkMode ? "#8b5cf6" : "#c084fc"} />
+          </linearGradient>
+          <linearGradient id="lineGrad-2" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor={isDarkMode ? "#ec4899" : "#f9a8d4"} />
+            <stop offset="100%" stopColor={isDarkMode ? "#3b82f6" : "#93c5fd"} />
+          </linearGradient>
         </defs>
       </svg>
+
+      {/* Twinkling Stars */}
+      <div className="absolute inset-0">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          {stars.map((star) => (
+            <motion.circle
+              key={`star-${star.id}`}
+              cx={`${star.x}%`}
+              cy={`${star.y}%`}
+              r={star.size}
+              fill={isDarkMode ? "#ffffff" : "#8b5cf6"}
+              animate={{
+                opacity: isDarkMode ? [0.2, 0.8, 0.2] : [0.1, 0.4, 0.1],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                delay: star.delay,
+              }}
+            />
+          ))}
+        </svg>
+      </div>
+
+      {/* Floating particles with different shapes */}
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute pointer-events-none"
+          style={{
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
+            width: particle.size * 2,
+            height: particle.size * 2,
+          }}
+          animate={{
+            y: [0, -30, 0],
+            x: [0, (particle.id % 2 === 0 ? 20 : -20), 0],
+            rotate: [0, 360],
+            opacity: isDarkMode ? [0.1, 0.5, 0.1] : [0.05, 0.25, 0.05],
+          }}
+          transition={{
+            duration: 10 + particle.id,
+            repeat: Infinity,
+            delay: particle.delay,
+            ease: "easeInOut"
+          }}
+        >
+          {particle.type === 0 && (
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L15 9H22L16 14L19 21L12 16.5L5 21L8 14L2 9H9L12 2Z" 
+                fill={particle.id % 3 === 0 
+                  ? (isDarkMode ? '#8b5cf6' : '#c084fc') 
+                  : particle.id % 3 === 1 
+                  ? (isDarkMode ? '#ec4899' : '#f9a8d4') 
+                  : (isDarkMode ? '#3b82f6' : '#93c5fd')} 
+                opacity={isDarkMode ? "0.5" : "0.3"}/>
+            </svg>
+          )}
+          {particle.type === 1 && (
+            <div className={`w-full h-full rounded-full ${
+              particle.id % 3 === 0 
+                ? (isDarkMode ? 'bg-purple-400' : 'bg-purple-300') 
+                : particle.id % 3 === 1 
+                ? (isDarkMode ? 'bg-pink-400' : 'bg-pink-300') 
+                : (isDarkMode ? 'bg-blue-400' : 'bg-blue-300')
+            } ${isDarkMode ? 'opacity-30' : 'opacity-20'}`} />
+          )}
+          {particle.type === 2 && (
+            <div className={`w-full h-full rotate-45 ${
+              particle.id % 3 === 0 
+                ? (isDarkMode ? 'bg-purple-400' : 'bg-purple-300') 
+                : particle.id % 3 === 1 
+                ? (isDarkMode ? 'bg-pink-400' : 'bg-pink-300') 
+                : (isDarkMode ? 'bg-blue-400' : 'bg-blue-300')
+            } ${isDarkMode ? 'opacity-30' : 'opacity-20'}`} style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} />
+          )}
+        </motion.div>
+      ))}
+
+      {/* Energy Beams */}
+      {[0, 1, 2, 3, 4].map((i) => (
+        <motion.div
+          key={`beam-${i}`}
+          className={`absolute top-0 bottom-0 w-32 bg-gradient-to-r from-transparent ${
+            isDarkMode ? 'via-purple-500/10' : 'via-purple-400/15'
+          } to-transparent skew-x-12`}
+          style={{ left: `${i * 25}%` }}
+          animate={{
+            x: ['-100%', '200%'],
+            opacity: isDarkMode ? [0, 0.3, 0] : [0, 0.2, 0],
+          }}
+          transition={{
+            duration: 4 + i,
+            repeat: Infinity,
+            delay: i * 2,
+            ease: "linear"
+          }}
+        />
+      ))}
+
+      {/* Floating nebula clouds */}
+      {clouds.map((cloud) => (
+        <motion.div
+          key={`cloud-${cloud.id}`}
+          className="absolute rounded-full blur-[100px]"
+          style={{
+            width: cloud.width,
+            height: cloud.height,
+            background: `radial-gradient(circle at center, 
+              ${cloud.color === 'purple' 
+                ? (isDarkMode ? '#8b5cf6' : '#c084fc') 
+                : cloud.color === 'pink' 
+                ? (isDarkMode ? '#ec4899' : '#f9a8d4') 
+                : (isDarkMode ? '#3b82f6' : '#93c5fd')}${isDarkMode ? '20' : '15'}, 
+              transparent 70%)`,
+            left: `${cloud.left}%`,
+            top: `${cloud.top}%`,
+          }}
+          animate={{
+            x: [0, 40, -20, 0],
+            y: [0, -30, 20, 0],
+            scale: [1, 1.2, 0.9, 1],
+          }}
+          transition={{
+            duration: 20 + cloud.id * 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+
+      {/* Glowing dots grid */}
+      <div className="absolute inset-0" style={{ 
+        backgroundImage: isDarkMode
+          ? `
+            radial-gradient(circle at 20px 20px, #8b5cf6 1px, transparent 1px),
+            radial-gradient(circle at 60px 60px, #ec4899 1px, transparent 1px)
+          `
+          : `
+            radial-gradient(circle at 20px 20px, #c084fc 1px, transparent 1px),
+            radial-gradient(circle at 60px 60px, #f9a8d4 1px, transparent 1px)
+          `,
+        backgroundSize: '80px 80px, 120px 120px',
+        opacity: isDarkMode ? 0.1 : 0.05
+      }} />
 
       {/* Floating Glowing Rings */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
         {[1, 2, 3].map((i) => (
           <motion.div
-            key={i}
+            key={`ring-${i}`}
             className="absolute rounded-full"
             style={{
               width: 300 + i * 100,
               height: 300 + i * 100,
-              border: `2px solid ${i === 1 ? '#9333EA' : i === 2 ? '#3B82F6' : '#EC4899'}`,
-              opacity: 0.1,
+              border: `2px solid ${i === 1 
+                ? (isDarkMode ? '#8b5cf6' : '#c084fc') 
+                : i === 2 
+                ? (isDarkMode ? '#3b82f6' : '#93c5fd') 
+                : (isDarkMode ? '#ec4899' : '#f9a8d4')}`,
+              opacity: isDarkMode ? 0.1 : 0.15,
               left: '50%',
               top: '50%',
               transform: 'translate(-50%, -50%)',
@@ -341,7 +468,7 @@ const StunningBackground = () => {
             animate={{
               scale: [1, 1.2, 1],
               rotate: [0, 360],
-              opacity: [0.1, 0.2, 0.1],
+              opacity: isDarkMode ? [0.1, 0.2, 0.1] : [0.15, 0.25, 0.15],
             }}
             transition={{
               duration: 10 + i * 2,
@@ -356,13 +483,15 @@ const StunningBackground = () => {
       <div className="absolute inset-0">
         {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
           <motion.div
-            key={i}
-            className="absolute top-1/2 left-1/2 w-[200%] h-[2px] bg-gradient-to-r from-transparent via-purple-500/10 to-transparent"
+            key={`ray-${i}`}
+            className={`absolute top-1/2 left-1/2 w-[200%] h-[2px] bg-gradient-to-r from-transparent ${
+              isDarkMode ? 'via-purple-500/10' : 'via-purple-400/15'
+            } to-transparent`}
             style={{
               transform: `translate(-50%, -50%) rotate(${angle}deg)`,
             }}
             animate={{
-              opacity: [0.1, 0.3, 0.1],
+              opacity: isDarkMode ? [0.1, 0.2, 0.1] : [0.15, 0.25, 0.15],
               scale: [1, 1.2, 1],
             }}
             transition={{
@@ -375,35 +504,71 @@ const StunningBackground = () => {
       </div>
 
       {/* Vignette Effect */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_30%,_rgba(0,0,0,0.5)_100%)] pointer-events-none" />
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse at center, transparent 30%, ${vignetteColor} 100%)`
+        }}
+      />
+
+      {/* Subtle noise texture */}
+      <div className="absolute inset-0 opacity-20 mix-blend-overlay" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E")`,
+        backgroundRepeat: 'repeat',
+      }} />
     </div>
   );
 };
 
-// ==================== PRODUCT CARD ====================
-const ProductCard = ({ product, isActive }) => {
+// ==================== PRODUCT CARD - THEME AWARE - FIXED ====================
+const ProductCard = ({ product, isActive, isDarkMode }) => {
+  // Theme-aware card background
+  const cardBg = isDarkMode 
+    ? 'bg-slate-900/90' 
+    : 'bg-white/90';
+  
+  const cardBorder = isDarkMode
+    ? 'border-white/10'
+    : 'border-gray-200';
+
+  const innerBg = isDarkMode
+    ? 'bg-slate-900/90'
+    : 'bg-white/90';
+
+  const textPrimary = isDarkMode ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDarkMode ? 'text-gray-300' : 'text-gray-600';
+  const textTertiary = isDarkMode ? 'text-gray-400' : 'text-gray-500';
+
   return (
     <motion.div
-      className={`w-[340px] bg-slate-900/90 backdrop-blur-xl rounded-2xl overflow-hidden ${
+      className={`w-[340px] ${cardBg} backdrop-blur-xl rounded-2xl overflow-hidden ${
         isActive 
           ? 'border-2 border-transparent bg-gradient-to-br from-purple-500/20 to-pink-500/20 shadow-2xl scale-100' 
-          : 'border border-white/10 scale-90 opacity-60'
+          : `border ${cardBorder} scale-90 opacity-60`
       }`}
       animate={isActive ? {
-        boxShadow: [
-          '0 20px 40px rgba(139,92,246,0.3)',
-          '0 30px 60px rgba(139,92,246,0.5)',
-          '0 20px 40px rgba(139,92,246,0.3)',
-        ],
+        boxShadow: isDarkMode
+          ? [
+              '0 20px 40px rgba(139,92,246,0.3)',
+              '0 30px 60px rgba(139,92,246,0.5)',
+              '0 20px 40px rgba(139,92,246,0.3)',
+            ]
+          : [
+              '0 20px 40px rgba(139,92,246,0.15)',
+              '0 30px 60px rgba(139,92,246,0.25)',
+              '0 20px 40px rgba(139,92,246,0.15)',
+            ],
       } : {}}
       transition={{ duration: 2, repeat: isActive ? Infinity : 0 }}
     >
-      {/* Animated Gradient Border for Active Card */}
+      {/* Animated Gradient Border for Active Card - FIXED */}
       {isActive && (
         <motion.div
           className="absolute inset-0 rounded-2xl"
           style={{
-            background: "linear-gradient(90deg, #9333EA, #3B82F6, #EC4899, #9333EA)",
+            backgroundImage: isDarkMode
+              ? "linear-gradient(90deg, #9333EA, #3B82F6, #EC4899, #9333EA)"
+              : "linear-gradient(90deg, #9333EA, #2563EB, #DB2777, #9333EA)",
             backgroundSize: "300% 100%",
           }}
           animate={{
@@ -418,7 +583,7 @@ const ProductCard = ({ product, isActive }) => {
       )}
 
       {/* Inner Content */}
-      <div className="relative p-6 bg-slate-900/90 m-[1px] rounded-2xl">
+      <div className={`relative p-6 ${innerBg} m-[1px] rounded-2xl`}>
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <motion.div
@@ -443,17 +608,17 @@ const ProductCard = ({ product, isActive }) => {
         </div>
 
         {/* Title */}
-        <h3 className="text-xl font-bold text-white mb-2">{product.title}</h3>
-        <p className="text-sm text-gray-300 mb-3">{product.shortDesc}</p>
-        <p className="text-xs text-gray-400 mb-4">{product.description}</p>
+        <h3 className={`text-xl font-bold ${textPrimary} mb-2`}>{product.title}</h3>
+        <p className={`text-sm ${textSecondary} mb-3`}>{product.shortDesc}</p>
+        <p className={`text-xs ${textTertiary} mb-4`}>{product.description}</p>
 
         {/* Metrics */}
         <div className="grid grid-cols-3 gap-2 mb-4">
           {product.metrics.map((metric, idx) => (
-            <div key={idx} className="text-center bg-white/5 rounded-lg p-2">
+            <div key={idx} className={`text-center ${isDarkMode ? 'bg-white/5' : 'bg-purple-50'} rounded-lg p-2`}>
               <Icon name={metric.icon} className={`mx-auto mb-1 ${product.color.icon} text-base`} />
-              <div className="font-bold text-white text-xs">{metric.value}</div>
-              <div className="text-gray-400 text-[8px]">{metric.label}</div>
+              <div className={`font-bold ${textPrimary} text-xs`}>{metric.value}</div>
+              <div className={`${textTertiary} text-[8px]`}>{metric.label}</div>
             </div>
           ))}
         </div>
@@ -461,9 +626,9 @@ const ProductCard = ({ product, isActive }) => {
         {/* Features */}
         <div className="space-y-2 mb-4">
           {product.features.map((feature, idx) => (
-            <div key={idx} className="flex items-center gap-2 bg-white/5 rounded-lg p-2">
+            <div key={idx} className={`flex items-center gap-2 ${isDarkMode ? 'bg-white/5' : 'bg-purple-50'} rounded-lg p-2`}>
               <Icon name={feature.icon} className={`text-xs ${product.color.icon}`} />
-              <span className="text-xs text-gray-300">{feature.name}</span>
+              <span className={`text-xs ${textSecondary}`}>{feature.name}</span>
               {feature.highlight && isActive && (
                 <motion.div
                   className="ml-auto w-1.5 h-1.5 rounded-full bg-purple-400"
@@ -480,7 +645,7 @@ const ProductCard = ({ product, isActive }) => {
           {product.technologies.map((tech, idx) => (
             <span
               key={idx}
-              className="text-[8px] px-2 py-1 rounded-full bg-white/5 text-gray-400 border border-white/10"
+              className={`text-[8px] px-2 py-1 rounded-full ${isDarkMode ? 'bg-white/5 text-gray-400 border-white/10' : 'bg-purple-50 text-gray-600 border-purple-100'} border`}
             >
               {tech}
             </span>
@@ -506,8 +671,8 @@ const ProductCard = ({ product, isActive }) => {
   );
 };
 
-// ==================== CAROUSEL WITH SIDE BUTTONS ====================
-const CarouselWithSideButtons = ({ products, currentIndex, onPrev, onNext }) => {
+// ==================== CAROUSEL WITH SIDE BUTTONS - THEME AWARE ====================
+const CarouselWithSideButtons = ({ products, currentIndex, onPrev, onNext, isDarkMode }) => {
   const containerRef = useRef(null);
 
   // Get visible cards (current, prev, next)
@@ -525,19 +690,24 @@ const CarouselWithSideButtons = ({ products, currentIndex, onPrev, onNext }) => 
 
   const visibleCards = getVisibleCards();
 
+  // Theme-aware button backgrounds
+  const buttonBg = isDarkMode
+    ? 'bg-white/10 border-white/20'
+    : 'bg-white/90 border-gray-200';
+
   return (
     <div ref={containerRef} className="relative w-full py-8">
       <div className="relative flex items-center justify-center">
-        {/* Left Button - Positioned absolutely on left side */}
+        {/* Left Button */}
         <motion.button
           whileHover={{ scale: 1.1, x: -5 }}
           whileTap={{ scale: 0.9 }}
           onClick={onPrev}
           className="absolute left-0 z-20 group"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur-xl opacity-50 group-hover:opacity-80 transition-opacity" />
-          <div className="relative p-5 rounded-full bg-white/10 backdrop-blur-md border-2 border-white/20 group-hover:border-purple-500/50 transition-all">
-            <Icon name="FaArrowLeft" className="text-white text-2xl" />
+          <div className={`absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur-xl opacity-50 group-hover:opacity-80 transition-opacity`} />
+          <div className={`relative p-5 rounded-full ${buttonBg} backdrop-blur-md border-2 group-hover:border-purple-500/50 transition-all`}>
+            <Icon name="FaArrowLeft" className={`${isDarkMode ? 'text-white' : 'text-gray-900'} text-2xl`} />
           </div>
         </motion.button>
 
@@ -557,27 +727,28 @@ const CarouselWithSideButtons = ({ products, currentIndex, onPrev, onNext }) => 
             >
               <ProductCard 
                 product={card} 
-                isActive={card.position === 'current'} 
+                isActive={card.position === 'current'}
+                isDarkMode={isDarkMode}
               />
             </motion.div>
           ))}
         </div>
 
-        {/* Right Button - Positioned absolutely on right side */}
+        {/* Right Button */}
         <motion.button
           whileHover={{ scale: 1.1, x: 5 }}
           whileTap={{ scale: 0.9 }}
           onClick={onNext}
           className="absolute right-0 z-20 group"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur-xl opacity-50 group-hover:opacity-80 transition-opacity" />
-          <div className="relative p-5 rounded-full bg-white/10 backdrop-blur-md border-2 border-white/20 group-hover:border-purple-500/50 transition-all">
-            <Icon name="FaArrowRight" className="text-white text-2xl" />
+          <div className={`absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur-xl opacity-50 group-hover:opacity-80 transition-opacity`} />
+          <div className={`relative p-5 rounded-full ${buttonBg} backdrop-blur-md border-2 group-hover:border-purple-500/50 transition-all`}>
+            <Icon name="FaArrowRight" className={`${isDarkMode ? 'text-white' : 'text-gray-900'} text-2xl`} />
           </div>
         </motion.button>
       </div>
 
-      {/* Progress Dots - Below the cards */}
+      {/* Progress Dots */}
       <div className="flex justify-center items-center gap-3 mt-8">
         {products.map((_, i) => (
           <motion.button
@@ -609,7 +780,7 @@ const CarouselWithSideButtons = ({ products, currentIndex, onPrev, onNext }) => 
               className={`rounded-full transition-all cursor-pointer ${
                 i === currentIndex 
                   ? 'w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500' 
-                  : 'w-2 h-2 bg-white/30 group-hover:bg-white/50'
+                  : `w-2 h-2 ${isDarkMode ? 'bg-white/30 group-hover:bg-white/50' : 'bg-gray-400 group-hover:bg-gray-600'}`
               }`}
               animate={i === currentIndex ? {
                 scale: [1, 1.2, 1],
@@ -623,11 +794,13 @@ const CarouselWithSideButtons = ({ products, currentIndex, onPrev, onNext }) => 
   );
 };
 
-// ==================== MAIN COMPONENT ====================
+// ==================== MAIN COMPONENT - THEME AWARE ====================
 export default function OurProducts() {
   const containerRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
+  
+  const { isDarkMode } = useTheme();
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -657,16 +830,29 @@ export default function OurProducts() {
     return () => clearInterval(timer);
   }, [mounted, currentIndex]);
 
+  // Theme-aware classes
+  const sectionBg = isDarkMode 
+    ? 'bg-slate-950' 
+    : 'bg-gradient-to-b from-purple-50 via-white to-indigo-50';
+  
+  const textSecondary = isDarkMode ? 'text-gray-300' : 'text-gray-600';
+  
+  const badgeBg = isDarkMode
+    ? 'bg-white/10 border-white/20'
+    : 'bg-purple-100 border-purple-200';
+
+  const ctaBg = "bg-gradient-to-r from-purple-600 to-blue-600";
+
   if (!mounted) {
-    return <div className="min-h-screen bg-slate-950" />;
+    return <div className={`min-h-screen ${sectionBg}`} />;
   }
 
   return (
     <section 
       ref={containerRef}
-      className="relative min-h-screen py-16 bg-slate-950 overflow-hidden"
+      className={`relative min-h-screen py-16 ${sectionBg} overflow-hidden transition-colors duration-500`}
     >
-      <StunningBackground />
+      <StunningBackground isDarkMode={isDarkMode} />
 
       {/* Main Content */}
       <div className="relative max-w-7xl mx-auto px-4 z-10">
@@ -678,7 +864,7 @@ export default function OurProducts() {
           <motion.div
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
-            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 mb-6"
+            className={`inline-flex items-center gap-2 ${badgeBg} backdrop-blur-md px-5 py-2.5 rounded-full border mb-6`}
           >
             <Icon name="FaCrown" className="text-purple-400 text-base" />
             <span className="text-sm font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
@@ -686,7 +872,7 @@ export default function OurProducts() {
             </span>
           </motion.div>
 
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-4">
+          <h2 className="text-5xl md:text-6xl font-bold mb-4">
             <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">
               Discover Our
             </span>
@@ -696,7 +882,7 @@ export default function OurProducts() {
             </span>
           </h2>
 
-          <p className="text-base text-gray-300 max-w-2xl mx-auto">
+          <p className={`text-base ${textSecondary} max-w-2xl mx-auto`}>
             Explore our collection of innovative solutions designed to transform your business
           </p>
         </motion.div>
@@ -707,6 +893,7 @@ export default function OurProducts() {
           currentIndex={currentIndex}
           onPrev={prevSlide}
           onNext={nextSlide}
+          isDarkMode={isDarkMode}
         />
 
         {/* CTA Section */}
@@ -718,7 +905,7 @@ export default function OurProducts() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="relative inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-10 py-4 rounded-full text-lg font-bold shadow-2xl group overflow-hidden"
+            className={`relative inline-flex items-center gap-3 ${ctaBg} text-white px-10 py-4 rounded-full text-lg font-bold shadow-2xl group overflow-hidden`}
           >
             <motion.div
               className="absolute inset-0"

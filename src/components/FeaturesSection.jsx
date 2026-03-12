@@ -19,6 +19,7 @@ import {
   FaBolt
 } from "react-icons/fa";
 import { useRef, useEffect, useState, useCallback } from "react";
+import { useTheme } from "@/context/ThemeContext";
 
 const featuresList = [
   {
@@ -65,6 +66,8 @@ export default function FeaturesSection() {
   const [isClient, setIsClient] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [hoveredFeature, setHoveredFeature] = useState(null);
+  
+  const { isDarkMode } = useTheme();
   
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -121,7 +124,7 @@ export default function FeaturesSection() {
         size: Math.random() * 3 + 1,
         speedX: (Math.random() - 0.5) * 0.5,
         speedY: (Math.random() - 0.5) * 0.5,
-        opacity: Math.random() * 0.5 + 0.2,
+        opacity: isDarkMode ? Math.random() * 0.5 + 0.2 : Math.random() * 0.3 + 0.1,
       };
     }
   }
@@ -136,32 +139,88 @@ export default function FeaturesSection() {
     });
   });
 
+  // Theme-aware classes
+  const sectionBg = isDarkMode 
+    ? "bg-[#030312]" 
+    : "bg-gradient-to-b from-purple-50 via-white to-blue-50";
+  
+  const textPrimary = isDarkMode ? "text-white" : "text-gray-900";
+  const textSecondary = isDarkMode ? "text-gray-300" : "text-gray-600";
+  const textTertiary = isDarkMode ? "text-gray-400" : "text-gray-500";
+  
+  const badgeBg = isDarkMode 
+    ? "bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-purple-600/20 border-purple-400/30" 
+    : "bg-gradient-to-r from-purple-100 via-blue-100 to-purple-100 border-purple-300";
+  
+  const statBg = isDarkMode 
+    ? "bg-white/5 border-white/10" 
+    : "bg-purple-50/80 border-purple-200";
+  
+  const floatingCardBg = isDarkMode 
+    ? "bg-white/10 border-white/20" 
+    : "bg-white/90 border-purple-200 shadow-lg";
+  
+  const ctaBg = "bg-gradient-to-r from-purple-600 to-blue-600";
+
+  // Theme-aware background gradients
+  const bgGradient1 = isDarkMode
+    ? "from-purple-600/20 via-pink-600/20 to-blue-600/20"
+    : "from-purple-400/30 via-pink-400/30 to-blue-400/30";
+  
+  const bgGradient2 = isDarkMode
+    ? "from-blue-600/20 via-cyan-600/20 to-purple-600/20"
+    : "from-blue-400/30 via-cyan-400/30 to-purple-400/30";
+  
+  const energyCoreGradient = isDarkMode
+    ? "from-purple-600/10 via-blue-600/10 to-purple-600/10"
+    : "from-purple-400/20 via-blue-400/20 to-purple-400/20";
+  
+  const shapeBorder = isDarkMode
+    ? "border-purple-500/10"
+    : "border-purple-300/30";
+
   return (
     <section 
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className="relative py-32 bg-[#030312] overflow-hidden"
+      className={`relative py-32 ${sectionBg} overflow-hidden transition-colors duration-500`}
     >
-      {/* Ultra Premium Dark Background */}
+      {/* Ultra Premium Background - Theme aware */}
       <div className="absolute inset-0 overflow-hidden">
         
-        {/* Deep Space Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#030312] via-[#0a0a2a] to-[#030312]" />
+        {/* Deep Space/Light Gradient */}
+        <div className={`absolute inset-0 bg-gradient-to-br ${
+          isDarkMode 
+            ? 'from-[#030312] via-[#0a0a2a] to-[#030312]' 
+            : 'from-purple-50 via-white to-blue-50'
+        }`} />
         
-        {/* Animated Nebula Clouds with Parallax */}
+        {/* Animated Nebula Clouds with Parallax - REMOVED animate-pulse class */}
         <motion.div 
           style={{ 
             y: y1,
             x: mousePosition.x * 50,
+            scale: [1, 1.05, 1],
           }}
-          className="absolute -top-40 -right-40 w-[800px] h-[800px] bg-gradient-to-br from-purple-600/20 via-pink-600/20 to-blue-600/20 rounded-full blur-3xl animate-pulse"
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className={`absolute -top-40 -right-40 w-[800px] h-[800px] bg-gradient-to-br ${bgGradient1} rounded-full blur-3xl`}
         />
         <motion.div 
           style={{ 
             y: y2,
             x: mousePosition.x * -50,
+            scale: [1, 1.05, 1],
           }}
-          className="absolute -bottom-40 -left-40 w-[800px] h-[800px] bg-gradient-to-tr from-blue-600/20 via-cyan-600/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"
+          transition={{
+            duration: 7,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className={`absolute -bottom-40 -left-40 w-[800px] h-[800px] bg-gradient-to-tr ${bgGradient2} rounded-full blur-3xl`}
         />
         
         {/* Central Energy Core */}
@@ -169,11 +228,21 @@ export default function FeaturesSection() {
           style={{ scale, opacity }}
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px]"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-blue-600/10 to-purple-600/10 rounded-full blur-3xl animate-spin-slow" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-400/5 to-transparent rounded-full blur-2xl animate-ping" />
+          <motion.div 
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className={`absolute inset-0 bg-gradient-to-r ${energyCoreGradient} rounded-full blur-3xl`} 
+          />
+          <motion.div 
+            animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className={`absolute inset-0 bg-gradient-to-r from-transparent via-${
+              isDarkMode ? 'purple-400/5' : 'purple-600/10'
+            } to-transparent rounded-full blur-2xl`} 
+          />
         </motion.div>
 
-        {/* Floating Geometric Shapes with Mouse Follow - FIXED: Combined styles */}
+        {/* Floating Geometric Shapes with Mouse Follow */}
         {[...Array(6)].map((_, i) => {
           const shapeStyle = {
             top: `${20 + i * 15}%`,
@@ -187,7 +256,7 @@ export default function FeaturesSection() {
             <motion.div
               key={i}
               style={shapeStyle}
-              className={`absolute w-64 h-64 border border-purple-500/10 ${
+              className={`absolute w-64 h-64 ${shapeBorder} ${
                 i % 2 === 0 ? 'rounded-lg' : 'rounded-full'
               }`}
             />
@@ -204,9 +273,12 @@ export default function FeaturesSection() {
             repeat: Infinity,
             ease: "linear"
           }}
-          className="absolute inset-0 opacity-20"
+          className="absolute inset-0"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            opacity: isDarkMode ? 0.2 : 0.1,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23${
+              isDarkMode ? '9C92AC' : '9333EA'
+            }' fill-opacity='${isDarkMode ? '0.2' : '0.1'}'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
             backgroundRepeat: 'repeat',
             backgroundSize: '60px 60px'
           }}
@@ -216,14 +288,15 @@ export default function FeaturesSection() {
         {isClient && particles.current.map((particle, i) => (
           <motion.div
             key={i}
-            className="absolute bg-white rounded-full"
+            className={`absolute rounded-full ${
+              isDarkMode ? 'bg-white' : 'bg-purple-500'
+            }`}
             style={{
               left: `${particle.x}%`,
               top: `${particle.y}%`,
               width: particle.size,
               height: particle.size,
               opacity: particle.opacity,
-              boxShadow: `0 0 ${particle.size * 2}px rgba(255,255,255,0.5)`,
             }}
             animate={{
               scale: [1, 1.5, 1],
@@ -245,6 +318,7 @@ export default function FeaturesSection() {
             style={{
               left: `${20 + index * 15}%`,
               top: `${30 + index * 10}%`,
+              opacity: isDarkMode ? 1 : 0.7,
             }}
             animate={isClient ? {
               y: [0, -30, 0],
@@ -273,7 +347,9 @@ export default function FeaturesSection() {
             repeat: Infinity,
             ease: "linear"
           }}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] border-2 border-purple-500/5 rounded-full"
+          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] border-2 ${
+            isDarkMode ? 'border-purple-500/5' : 'border-purple-400/20'
+          } rounded-full`}
         />
         
         <motion.div
@@ -285,7 +361,9 @@ export default function FeaturesSection() {
             repeat: Infinity,
             ease: "linear"
           }}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] border border-blue-500/10 rounded-full"
+          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] border ${
+            isDarkMode ? 'border-blue-500/10' : 'border-blue-400/20'
+          } rounded-full`}
         />
 
         {/* Light Streaks with Mouse Follow */}
@@ -302,7 +380,9 @@ export default function FeaturesSection() {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute top-1/3 left-0 w-60 h-60 bg-gradient-to-r from-transparent via-purple-400/20 to-transparent rotate-45 blur-3xl"
+          className={`absolute top-1/3 left-0 w-60 h-60 bg-gradient-to-r from-transparent ${
+            isDarkMode ? 'via-purple-400/20' : 'via-purple-600/30'
+          } to-transparent rotate-45 blur-3xl`}
         />
         
         <motion.div
@@ -318,10 +398,12 @@ export default function FeaturesSection() {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute bottom-1/3 right-0 w-60 h-60 bg-gradient-to-r from-transparent via-blue-400/20 to-transparent -rotate-45 blur-3xl"
+          className={`absolute bottom-1/3 right-0 w-60 h-60 bg-gradient-to-r from-transparent ${
+            isDarkMode ? 'via-blue-400/20' : 'via-blue-600/30'
+          } to-transparent -rotate-45 blur-3xl`}
         />
 
-        {/* Vignette Effect with Pulse */}
+        {/* Vignette Effect with Pulse - USING FRAMER MOTION INSTEAD OF TAILWIND ANIMATION */}
         <motion.div 
           animate={isClient ? {
             opacity: [0.6, 0.8, 0.6],
@@ -331,7 +413,11 @@ export default function FeaturesSection() {
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="absolute inset-0 bg-gradient-to-t from-[#030312] via-transparent to-[#030312]"
+          className={`absolute inset-0 bg-gradient-to-t ${
+            isDarkMode 
+              ? 'from-[#030312] via-transparent to-[#030312]' 
+              : 'from-white via-transparent to-white'
+          }`}
         />
         <motion.div 
           animate={isClient ? {
@@ -343,7 +429,11 @@ export default function FeaturesSection() {
             ease: "easeInOut",
             delay: 1.5
           }}
-          className="absolute inset-0 bg-gradient-to-r from-[#030312] via-transparent to-[#030312]"
+          className={`absolute inset-0 bg-gradient-to-r ${
+            isDarkMode 
+              ? 'from-[#030312] via-transparent to-[#030312]' 
+              : 'from-white via-transparent to-white'
+          }`}
         />
       </div>
 
@@ -359,7 +449,7 @@ export default function FeaturesSection() {
           }}
           className="text-center mb-20"
         >
-          {/* Premium Animated Badge */}
+          {/* Premium Animated Badge - REMOVED shadow animation class */}
           <motion.div
             initial={{ scale: 0, rotate: -180 }}
             whileInView={{ scale: 1, rotate: 0 }}
@@ -369,7 +459,12 @@ export default function FeaturesSection() {
               damping: 20
             }}
             whileHover={{ scale: 1.1 }}
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-purple-600/20 backdrop-blur-xl px-6 py-3 rounded-full border border-purple-400/30 mb-8 shadow-[0_0_30px_rgba(168,85,247,0.3)]"
+            style={{
+              boxShadow: isDarkMode 
+                ? '0 0 30px rgba(168,85,247,0.3)' 
+                : '0 0 30px rgba(168,85,247,0.15)'
+            }}
+            className={`inline-flex items-center gap-3 ${badgeBg} backdrop-blur-xl px-6 py-3 rounded-full border mb-8`}
           >
             <motion.div
               animate={isClient ? {
@@ -402,7 +497,7 @@ export default function FeaturesSection() {
 
           <motion.h2 
             style={{ filter: `blur(${blur}px)` }}
-            className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6"
+            className={`text-5xl md:text-6xl lg:text-7xl font-bold ${textPrimary} mb-6`}
           >
             Everything You Expect and
             <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent block mt-2">
@@ -414,7 +509,7 @@ export default function FeaturesSection() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-xl text-gray-300 max-w-3xl mx-auto"
+            className={`text-xl ${textSecondary} max-w-3xl mx-auto`}
           >
             GoSaas delivers all the key features, offering a versatile
             platform to streamline your business operations with cutting-edge technology.
@@ -433,10 +528,14 @@ export default function FeaturesSection() {
                 whileHover={{ 
                   scale: 1.15,
                   y: -10,
-                  boxShadow: "0 20px 40px rgba(168,85,247,0.3)"
+                }}
+                style={{
+                  boxShadow: isDarkMode
+                    ? "0 20px 40px rgba(168,85,247,0.3)"
+                    : "0 20px 40px rgba(168,85,247,0.15)"
                 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-3 bg-white/5 backdrop-blur-xl px-5 py-3 rounded-full border border-white/10 cursor-pointer"
+                className={`flex items-center gap-3 ${statBg} backdrop-blur-xl px-5 py-3 rounded-full border cursor-pointer transition-colors`}
               >
                 <motion.div
                   animate={isClient ? {
@@ -451,8 +550,8 @@ export default function FeaturesSection() {
                 >
                   <stat.icon className="text-purple-400 text-sm" />
                 </motion.div>
-                <span className="font-bold text-white">{stat.value}</span>
-                <span className="text-gray-400 text-sm">{stat.label}</span>
+                <span className={`font-bold ${textPrimary}`}>{stat.value}</span>
+                <span className={`${textTertiary} text-sm`}>{stat.label}</span>
               </motion.div>
             ))}
           </motion.div>
@@ -492,7 +591,9 @@ export default function FeaturesSection() {
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur-3xl"
+                className={`absolute inset-0 bg-gradient-to-r ${
+                  isDarkMode ? 'from-purple-600 to-blue-600' : 'from-purple-400 to-blue-400'
+                } rounded-2xl blur-3xl`}
               />
               
               <motion.div
@@ -504,10 +605,16 @@ export default function FeaturesSection() {
                   repeat: Infinity,
                   ease: "linear"
                 }}
-                className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 rounded-2xl blur opacity-50"
+                className={`absolute -inset-1 bg-gradient-to-r ${
+                  isDarkMode 
+                    ? 'from-purple-600 via-blue-600 to-purple-600' 
+                    : 'from-purple-400 via-blue-400 to-purple-400'
+                } rounded-2xl blur opacity-50`}
               />
               
-              <div className="relative overflow-hidden rounded-2xl shadow-2xl border border-white/10">
+              <div className={`relative overflow-hidden rounded-2xl shadow-2xl border ${
+                isDarkMode ? 'border-white/10' : 'border-purple-200'
+              }`}>
                 <Image
                   src="/images/dashboard.png"
                   width={600}
@@ -530,14 +637,23 @@ export default function FeaturesSection() {
                 />
                 
                 {/* Overlay Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/30 via-transparent to-blue-600/30" />
+                <div className={`absolute inset-0 bg-gradient-to-tr ${
+                  isDarkMode 
+                    ? 'from-purple-600/30 via-transparent to-blue-600/30' 
+                    : 'from-purple-400/40 via-transparent to-blue-400/40'
+                }`} />
                 
                 {/* Pixel Grid Overlay */}
                 <div 
-                  className="absolute inset-0 opacity-20"
+                  className="absolute inset-0"
                   style={{
-                    backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                                    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+                    opacity: isDarkMode ? 0.2 : 0.1,
+                    backgroundImage: `linear-gradient(${
+                      isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(139,92,246,0.1)'
+                    } 1px, transparent 1px),
+                                    linear-gradient(90deg, ${
+                                      isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(139,92,246,0.1)'
+                                    } 1px, transparent 1px)`,
                     backgroundSize: '20px 20px'
                   }}
                 />
@@ -559,7 +675,7 @@ export default function FeaturesSection() {
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
-              className="absolute top-6 right-6 md:top-10 md:right-10 bg-white/10 backdrop-blur-xl text-white px-5 py-3 rounded-full flex items-center gap-2 text-sm shadow-2xl border border-white/20 z-10"
+              className={`absolute top-6 right-6 md:top-10 md:right-10 ${floatingCardBg} backdrop-blur-xl px-5 py-3 rounded-full flex items-center gap-2 text-sm shadow-2xl border z-10`}
             >
               <motion.div
                 animate={isClient ? {
@@ -573,7 +689,7 @@ export default function FeaturesSection() {
               >
                 <FaUsers className="text-purple-400" />
               </motion.div>
-              <span className="font-semibold">10K+ Active Users</span>
+              <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>10K+ Active Users</span>
             </motion.div>
 
             <motion.div
@@ -591,7 +707,7 @@ export default function FeaturesSection() {
                 ease: "easeInOut",
                 delay: 0.5
               }}
-              className="absolute bottom-6 left-6 md:bottom-10 md:left-10 bg-white/10 backdrop-blur-xl text-white px-5 py-3 rounded-full flex items-center gap-2 text-sm shadow-2xl border border-white/20 z-10"
+              className={`absolute bottom-6 left-6 md:bottom-10 md:left-10 ${floatingCardBg} backdrop-blur-xl px-5 py-3 rounded-full flex items-center gap-2 text-sm shadow-2xl border z-10`}
             >
               <motion.div
                 animate={isClient ? {
@@ -605,7 +721,7 @@ export default function FeaturesSection() {
               >
                 <FaSearch className="text-blue-400" />
               </motion.div>
-              <span className="font-semibold">Advanced Search</span>
+              <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Advanced Search</span>
             </motion.div>
 
             {/* Additional Floating Elements */}
@@ -628,7 +744,9 @@ export default function FeaturesSection() {
                   ease: "easeInOut",
                   delay: i * 0.3
                 }}
-                className="absolute w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur-xl opacity-30"
+                className={`absolute w-16 h-16 bg-gradient-to-r ${
+                  isDarkMode ? 'from-purple-600 to-pink-600' : 'from-purple-400 to-pink-400'
+                } rounded-full blur-xl opacity-30`}
               />
             ))}
           </motion.div>
@@ -650,13 +768,19 @@ export default function FeaturesSection() {
           >
             {/* Animated Title */}
             <motion.h3 
-              className="text-4xl md:text-5xl font-bold text-white leading-tight"
+              className={`text-4xl md:text-5xl font-bold ${textPrimary} leading-tight`}
               animate={isClient ? {
-                textShadow: [
-                  "0 0 20px rgba(168,85,247,0)",
-                  "0 0 30px rgba(168,85,247,0.5)",
-                  "0 0 20px rgba(168,85,247,0)",
-                ]
+                textShadow: isDarkMode
+                  ? [
+                      "0 0 20px rgba(168,85,247,0)",
+                      "0 0 30px rgba(168,85,247,0.5)",
+                      "0 0 20px rgba(168,85,247,0)",
+                    ]
+                  : [
+                      "0 0 10px rgba(168,85,247,0)",
+                      "0 0 20px rgba(168,85,247,0.3)",
+                      "0 0 10px rgba(168,85,247,0)",
+                    ]
               } : {}}
               transition={{
                 duration: 3,
@@ -674,7 +798,7 @@ export default function FeaturesSection() {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-gray-300 text-lg leading-relaxed"
+              className={`${textSecondary} text-lg leading-relaxed`}
             >
               Our fast response system helps you tackle tasks efficiently,
               enabling you to focus on what truly matters and achieve
@@ -713,11 +837,17 @@ export default function FeaturesSection() {
                     {/* Icon Glow Effect */}
                     <motion.div
                       animate={isClient ? {
-                        boxShadow: [
-                          `0 0 20px ${feature.glow}`,
-                          `0 0 40px ${feature.glow}`,
-                          `0 0 20px ${feature.glow}`,
-                        ]
+                        boxShadow: isDarkMode
+                          ? [
+                              "0 0 20px rgba(168,85,247,0.5)",
+                              "0 0 40px rgba(168,85,247,0.8)",
+                              "0 0 20px rgba(168,85,247,0.5)",
+                            ]
+                          : [
+                              "0 0 10px rgba(168,85,247,0.3)",
+                              "0 0 20px rgba(168,85,247,0.5)",
+                              "0 0 10px rgba(168,85,247,0.3)",
+                            ]
                       } : {}}
                       transition={{
                         duration: 2,
@@ -731,14 +861,16 @@ export default function FeaturesSection() {
                   </motion.div>
                   <div>
                     <motion.h4 
-                      className="text-white font-semibold text-lg"
+                      className={`font-semibold text-lg ${
+                        hoveredFeature === index ? 'text-purple-400' : textPrimary
+                      }`}
                       animate={hoveredFeature === index ? {
                         color: "#c084fc",
                       } : {}}
                     >
                       {feature.title}
                     </motion.h4>
-                    <p className="text-gray-400 text-sm">{feature.desc}</p>
+                    <p className={textTertiary + " text-sm"}>{feature.desc}</p>
                   </div>
                 </motion.div>
               ))}
@@ -754,22 +886,32 @@ export default function FeaturesSection() {
               <motion.button
                 whileHover={{ 
                   scale: 1.1,
-                  boxShadow: "0 30px 60px rgba(168,85,247,0.4)"
+                }}
+                style={{
+                  boxShadow: isDarkMode
+                    ? "0 30px 60px rgba(168,85,247,0.4)"
+                    : "0 30px 60px rgba(168,85,247,0.3)"
                 }}
                 whileTap={{ scale: 0.95 }}
                 animate={isClient ? {
-                  boxShadow: [
-                    "0 10px 30px rgba(168,85,247,0.3)",
-                    "0 20px 50px rgba(59,130,246,0.4)",
-                    "0 10px 30px rgba(168,85,247,0.3)",
-                  ]
+                  boxShadow: isDarkMode
+                    ? [
+                        "0 10px 30px rgba(168,85,247,0.3)",
+                        "0 20px 50px rgba(59,130,246,0.4)",
+                        "0 10px 30px rgba(168,85,247,0.3)",
+                      ]
+                    : [
+                        "0 10px 30px rgba(168,85,247,0.2)",
+                        "0 20px 50px rgba(59,130,246,0.3)",
+                        "0 10px 30px rgba(168,85,247,0.2)",
+                      ]
                 } : {}}
                 transition={{
                   duration: 3,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-10 py-5 rounded-full font-semibold overflow-hidden"
+                className={`group relative inline-flex items-center gap-3 ${ctaBg} text-white px-10 py-5 rounded-full font-semibold overflow-hidden`}
               >
                 <motion.span 
                   animate={isClient ? {
@@ -806,16 +948,13 @@ export default function FeaturesSection() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-4xl h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"
+          className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-4xl h-px bg-gradient-to-r from-transparent ${
+            isDarkMode ? 'via-purple-500/50' : 'via-purple-400/70'
+          } to-transparent`}
         />
       </div>
 
       <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
-        }
-        
         @keyframes spin-slow {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }

@@ -10,6 +10,7 @@ import {
 import { FiArrowUpRight, FiMail, FiMapPin, FiClock } from "react-icons/fi";
 import { HiOutlineSparkles } from "react-icons/hi";
 import { BsStars } from "react-icons/bs";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -17,6 +18,8 @@ export default function Footer() {
   const [email, setEmail] = useState("");
   const [isHovered, setIsHovered] = useState(false);
   const [mounted, setMounted] = useState(false);
+  
+  const { isDarkMode } = useTheme();
   
   // Parallax scroll effects
   const { scrollYProgress } = useScroll({
@@ -50,6 +53,19 @@ export default function Footer() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [mouseX, mouseY]);
 
+  // Theme-aware color values
+  const bgColor = isDarkMode ? '#030014' : '#f8fafc';
+  const textPrimary = isDarkMode ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDarkMode ? 'text-gray-300' : 'text-gray-600';
+  const textTertiary = isDarkMode ? 'text-gray-400' : 'text-gray-500';
+  const borderColor = isDarkMode ? 'border-purple-500/30' : 'border-purple-300/50';
+  const cardBg = isDarkMode 
+    ? 'bg-gradient-to-br from-purple-900/40 via-pink-900/30 to-blue-900/40' 
+    : 'bg-gradient-to-br from-purple-100/80 via-pink-100/80 to-blue-100/80';
+  const inputBg = isDarkMode ? 'bg-white/5 border-white/10' : 'bg-purple-50/80 border-purple-200';
+  const socialIconBg = isDarkMode ? 'bg-white/5 border-white/10' : 'bg-purple-100 border-purple-200';
+  const linkColor = isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900';
+
   // Fixed values for SSR - no Math.random()
   const particles = [
     { id: 0, x: 10, y: 20, size: 2, type: 0 },
@@ -81,7 +97,7 @@ export default function Footer() {
     { id: 7, x1: 15, y1: 35, x2: 55, y2: 75 },
   ];
 
-  // Fixed stars for SSR
+  // Fixed stars for SSR - theme aware colors
   const stars = Array.from({ length: 50 }, (_, i) => ({
     id: i,
     x: (i * 7) % 100,
@@ -90,7 +106,7 @@ export default function Footer() {
     delay: (i % 5) * 0.2,
   }));
 
-  // Fixed orbs for SSR
+  // Fixed orbs for SSR - theme aware colors
   const orbs = [
     { id: 0, left: 10, top: 20, width: 250, height: 250, color: 'purple', delay: 0 },
     { id: 1, left: 70, top: 60, width: 200, height: 200, color: 'pink', delay: 2 },
@@ -100,7 +116,7 @@ export default function Footer() {
     { id: 5, left: 55, top: 45, width: 180, height: 180, color: 'blue', delay: 5 },
   ];
 
-  // Fixed clouds for SSR
+  // Fixed clouds for SSR - theme aware colors
   const clouds = [
     { id: 0, left: 5, top: 10, width: 400, height: 400, color: 'purple' },
     { id: 1, left: 35, top: 40, width: 400, height: 400, color: 'pink' },
@@ -116,16 +132,31 @@ export default function Footer() {
     { icon: FaHeart, text: "99.9% Uptime", color: "red" }
   ];
 
+  // Theme-aware gradient classes
+  const footerGradient = isDarkMode
+    ? 'from-[#030014] via-[#0a0a2a] to-[#030014]'
+    : 'from-purple-50 via-white to-indigo-50';
+  
+  const radialTopGradient = isDarkMode
+    ? 'ellipse_at_top,_#1a0b2e_0%,_#030014_50%'
+    : 'ellipse_at_top,_#f3e8ff_0%,_#f8fafc_50%';
+  
+  const radialBottomGradient = isDarkMode
+    ? 'ellipse_at_bottom,_#0f172a_0%,_#030014_100%'
+    : 'ellipse_at_bottom,_#e0e7ff_0%,_#f8fafc_100%';
+  
+  const vignetteColor = isDarkMode ? '#030014' : '#f8fafc';
+
   // Don't render complex animations on server
   if (!mounted) {
     return (
-      <footer className="relative bg-[#030014] text-gray-300 pt-24 pb-8 border-t border-purple-500/30">
+      <footer className={`relative ${isDarkMode ? 'bg-[#030014]' : 'bg-purple-50'} pt-24 pb-8 border-t ${borderColor} transition-colors duration-500`}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           {/* Simple static footer for SSR */}
           <div className="grid lg:grid-cols-5 gap-12 mb-20">
             <div className="lg:col-span-2">
-              <div className="text-5xl font-extrabold mb-4">CRM</div>
-              <p className="text-gray-400 max-w-md">The next-generation SaaS platform.</p>
+              <div className={`text-5xl font-extrabold mb-4 ${textPrimary}`}>CRM</div>
+              <p className={textTertiary}>The next-generation SaaS platform.</p>
             </div>
           </div>
         </div>
@@ -136,22 +167,34 @@ export default function Footer() {
   return (
     <footer 
       ref={footerRef}
-      className="relative bg-[#030014] text-gray-300 pt-24 pb-8 overflow-hidden border-t border-purple-500/30"
+      className={`relative ${isDarkMode ? 'bg-[#030014]' : 'bg-gradient-to-b from-purple-50 to-white'} pt-24 pb-8 overflow-hidden border-t ${borderColor} transition-colors duration-500`}
     >
-      {/* ===== SPECTACULAR BACKGROUND DESIGN ===== */}
+      {/* ===== SPECTACULAR BACKGROUND DESIGN - THEME AWARE ===== */}
       
-      {/* 1. Deep cosmic gradient base */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1a0b2e_0%,_#030014_50%),_radial-gradient(ellipse_at_bottom,_#0f172a_0%,_#030014_100%)]"></div>
+      {/* 1. Deep cosmic gradient base - THEME AWARE */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(${radialTopGradient}), radial-gradient(${radialBottomGradient})`
+        }}
+      />
       
-      {/* 2. Animated aurora borealis effect */}
+      {/* 2. Animated aurora borealis effect - THEME AWARE - REMOVED animate-pulse */}
       <motion.div 
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0"
+        style={{ opacity: isDarkMode ? 0.3 : 0.15 }}
         animate={{
-          background: [
-            "radial-gradient(circle at 20% 50%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 80% 50%, #ec4899 0%, transparent 50%)",
-            "radial-gradient(circle at 30% 40%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 70% 60%, #ec4899 0%, transparent 50%)",
-            "radial-gradient(circle at 20% 50%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 80% 50%, #ec4899 0%, transparent 50%)",
-          ]
+          background: isDarkMode
+            ? [
+                "radial-gradient(circle at 20% 50%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 80% 50%, #ec4899 0%, transparent 50%)",
+                "radial-gradient(circle at 30% 40%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 70% 60%, #ec4899 0%, transparent 50%)",
+                "radial-gradient(circle at 20% 50%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 80% 50%, #ec4899 0%, transparent 50%)",
+              ]
+            : [
+                "radial-gradient(circle at 20% 50%, #c084fc 0%, transparent 50%), radial-gradient(circle at 80% 50%, #f9a8d4 0%, transparent 50%)",
+                "radial-gradient(circle at 30% 40%, #c084fc 0%, transparent 50%), radial-gradient(circle at 70% 60%, #f9a8d4 0%, transparent 50%)",
+                "radial-gradient(circle at 20% 50%, #c084fc 0%, transparent 50%), radial-gradient(circle at 80% 50%, #f9a8d4 0%, transparent 50%)",
+              ]
         }}
         transition={{
           duration: 10,
@@ -160,7 +203,7 @@ export default function Footer() {
         }}
       />
       
-      {/* 3. Twinkling stars background */}
+      {/* 3. Twinkling stars background - THEME AWARE - USING FRAMER MOTION INSTEAD OF ANIMATION CLASSES */}
       <div className="absolute inset-0">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
           {stars.map((star) => (
@@ -169,10 +212,9 @@ export default function Footer() {
               cx={`${star.x}%`}
               cy={`${star.y}%`}
               r={star.size}
-              fill="rgba(255, 255, 255, 0.5)"
+              fill={isDarkMode ? "#ffffff" : "#8b5cf6"}
               animate={{
-                opacity: [0.2, 1, 0.2],
-                scale: [1, 1.5, 1],
+                opacity: isDarkMode ? [0.2, 0.8, 0.2] : [0.1, 0.4, 0.1],
               }}
               transition={{
                 duration: 3,
@@ -184,7 +226,7 @@ export default function Footer() {
         </svg>
       </div>
       
-      {/* 4. Floating glowing orbs with trails */}
+      {/* 4. Floating glowing orbs with trails - THEME AWARE */}
       {orbs.map((orb) => (
         <motion.div
           key={`orb-${orb.id}`}
@@ -193,7 +235,11 @@ export default function Footer() {
             width: orb.width,
             height: orb.height,
             background: `radial-gradient(circle at center, 
-              ${orb.color === 'purple' ? '#8b5cf6' : orb.color === 'pink' ? '#ec4899' : '#3b82f6'}40, 
+              ${orb.color === 'purple' 
+                ? (isDarkMode ? '#8b5cf6' : '#c084fc') 
+                : orb.color === 'pink' 
+                ? (isDarkMode ? '#ec4899' : '#f9a8d4') 
+                : (isDarkMode ? '#3b82f6' : '#93c5fd')}${isDarkMode ? '40' : '30'}, 
               transparent 70%)`,
             left: `${orb.left}%`,
             top: `${orb.top}%`,
@@ -202,7 +248,7 @@ export default function Footer() {
             x: [0, orb.id % 2 === 0 ? 50 : -40, 0],
             y: [0, orb.id % 3 === 0 ? -40 : 30, 0],
             scale: [1, 1.3, 1],
-            opacity: [0.3, 0.6, 0.3],
+            opacity: isDarkMode ? [0.3, 0.6, 0.3] : [0.2, 0.4, 0.2],
           }}
           transition={{
             duration: 15 + orb.id,
@@ -212,8 +258,8 @@ export default function Footer() {
         />
       ))}
       
-      {/* 5. Animated constellation lines */}
-      <svg className="absolute inset-0 w-full h-full opacity-20">
+      {/* 5. Animated constellation lines - THEME AWARE */}
+      <svg className="absolute inset-0 w-full h-full" style={{ opacity: isDarkMode ? 0.2 : 0.1 }}>
         {lines.map((line) => (
           <motion.line
             key={`line-${line.id}`}
@@ -224,8 +270,8 @@ export default function Footer() {
             stroke={`url(#lineGrad-${line.id % 3})`}
             strokeWidth="0.5"
             strokeDasharray="5,5"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 0.3 }}
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
             transition={{
               duration: 15 + line.id,
               repeat: Infinity,
@@ -236,21 +282,21 @@ export default function Footer() {
         ))}
         <defs>
           <linearGradient id="lineGrad-0" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#8b5cf6" />
-            <stop offset="100%" stopColor="#ec4899" />
+            <stop offset="0%" stopColor={isDarkMode ? "#8b5cf6" : "#c084fc"} />
+            <stop offset="100%" stopColor={isDarkMode ? "#ec4899" : "#f9a8d4"} />
           </linearGradient>
           <linearGradient id="lineGrad-1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#8b5cf6" />
+            <stop offset="0%" stopColor={isDarkMode ? "#3b82f6" : "#93c5fd"} />
+            <stop offset="100%" stopColor={isDarkMode ? "#8b5cf6" : "#c084fc"} />
           </linearGradient>
           <linearGradient id="lineGrad-2" x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#ec4899" />
-            <stop offset="100%" stopColor="#3b82f6" />
+            <stop offset="0%" stopColor={isDarkMode ? "#ec4899" : "#f9a8d4"} />
+            <stop offset="100%" stopColor={isDarkMode ? "#3b82f6" : "#93c5fd"} />
           </linearGradient>
         </defs>
       </svg>
       
-      {/* 6. Floating particles with different shapes */}
+      {/* 6. Floating particles with different shapes - THEME AWARE */}
       {particles.map((particle) => (
         <motion.div
           key={particle.id}
@@ -265,7 +311,7 @@ export default function Footer() {
             y: [0, -30, 0],
             x: [0, (particle.id % 2 === 0 ? 20 : -20), 0],
             rotate: [0, 360],
-            opacity: [0.1, 0.5, 0.1],
+            opacity: isDarkMode ? [0.1, 0.5, 0.1] : [0.05, 0.25, 0.05],
           }}
           transition={{
             duration: 10 + particle.id,
@@ -277,29 +323,37 @@ export default function Footer() {
           {particle.type === 0 && (
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2L15 9H22L16 14L19 21L12 16.5L5 21L8 14L2 9H9L12 2Z" 
-                fill={particle.id % 3 === 0 ? '#8b5cf6' : particle.id % 3 === 1 ? '#ec4899' : '#3b82f6'} 
-                opacity="0.5"/>
+                fill={particle.id % 3 === 0 
+                  ? (isDarkMode ? '#8b5cf6' : '#c084fc') 
+                  : particle.id % 3 === 1 
+                  ? (isDarkMode ? '#ec4899' : '#f9a8d4') 
+                  : (isDarkMode ? '#3b82f6' : '#93c5fd')} 
+                opacity={isDarkMode ? "0.5" : "0.3"}/>
             </svg>
           )}
           {particle.type === 1 && (
             <div className={`w-full h-full rounded-full ${
-              particle.id % 3 === 0 ? 'bg-purple-400' : 
-              particle.id % 3 === 1 ? 'bg-pink-400' : 
-              'bg-blue-400'
-            } opacity-30 blur-[1px]`} />
+              particle.id % 3 === 0 
+                ? (isDarkMode ? 'bg-purple-400' : 'bg-purple-300') 
+                : particle.id % 3 === 1 
+                ? (isDarkMode ? 'bg-pink-400' : 'bg-pink-300') 
+                : (isDarkMode ? 'bg-blue-400' : 'bg-blue-300')
+            } ${isDarkMode ? 'opacity-30' : 'opacity-20'}`} />
           )}
           {particle.type === 2 && (
             <div className={`w-full h-full rotate-45 ${
-              particle.id % 3 === 0 ? 'bg-purple-400' : 
-              particle.id % 3 === 1 ? 'bg-pink-400' : 
-              'bg-blue-400'
-            } opacity-30`} style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} />
+              particle.id % 3 === 0 
+                ? (isDarkMode ? 'bg-purple-400' : 'bg-purple-300') 
+                : particle.id % 3 === 1 
+                ? (isDarkMode ? 'bg-pink-400' : 'bg-pink-300') 
+                : (isDarkMode ? 'bg-blue-400' : 'bg-blue-300')
+            } ${isDarkMode ? 'opacity-30' : 'opacity-20'}`} style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} />
           )}
         </motion.div>
       ))}
       
-      {/* 7. Animated gradient mesh */}
-      <div className="absolute inset-0 opacity-30">
+      {/* 7. Animated gradient mesh - THEME AWARE - REMOVED ANIMATION CLASSES */}
+      <div className="absolute inset-0" style={{ opacity: isDarkMode ? 0.3 : 0.15 }}>
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="mesh" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -323,24 +377,26 @@ export default function Footer() {
               />
             </pattern>
             <linearGradient id="meshGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
-              <stop offset="50%" stopColor="#ec4899" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
+              <stop offset="0%" stopColor={isDarkMode ? "#8b5cf6" : "#c084fc"} stopOpacity={isDarkMode ? "0.3" : "0.2"} />
+              <stop offset="50%" stopColor={isDarkMode ? "#ec4899" : "#f9a8d4"} stopOpacity={isDarkMode ? "0.3" : "0.2"} />
+              <stop offset="100%" stopColor={isDarkMode ? "#3b82f6" : "#93c5fd"} stopOpacity={isDarkMode ? "0.3" : "0.2"} />
             </linearGradient>
           </defs>
           <rect width="100%" height="100%" fill="url(#mesh)" />
         </svg>
       </div>
       
-      {/* 8. Animated light beams */}
+      {/* 8. Animated light beams - THEME AWARE */}
       {[0, 1, 2, 3, 4].map((i) => (
         <motion.div
           key={`beam-${i}`}
-          className="absolute top-0 bottom-0 w-32 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12"
+          className={`absolute top-0 bottom-0 w-32 bg-gradient-to-r from-transparent ${
+            isDarkMode ? 'via-white/5' : 'via-purple-200/20'
+          } to-transparent skew-x-12`}
           style={{ left: `${i * 25}%` }}
           animate={{
             x: ['-100%', '200%'],
-            opacity: [0, 0.5, 0],
+            opacity: isDarkMode ? [0, 0.5, 0] : [0, 0.3, 0],
           }}
           transition={{
             duration: 4 + i,
@@ -351,36 +407,51 @@ export default function Footer() {
         />
       ))}
       
-      {/* 9. Glowing dots grid */}
+      {/* 9. Glowing dots grid - THEME AWARE */}
       <div className="absolute inset-0" style={{ 
-        backgroundImage: `
-          radial-gradient(circle at 20px 20px, rgba(139, 92, 246, 0.1) 1px, transparent 1px),
-          radial-gradient(circle at 60px 60px, rgba(236, 72, 153, 0.1) 1px, transparent 1px)
-        `,
-        backgroundSize: '80px 80px, 120px 120px'
+        backgroundImage: isDarkMode
+          ? `
+            radial-gradient(circle at 20px 20px, #8b5cf6 1px, transparent 1px),
+            radial-gradient(circle at 60px 60px, #ec4899 1px, transparent 1px)
+          `
+          : `
+            radial-gradient(circle at 20px 20px, #c084fc 1px, transparent 1px),
+            radial-gradient(circle at 60px 60px, #f9a8d4 1px, transparent 1px)
+          `,
+        backgroundSize: '80px 80px, 120px 120px',
+        opacity: isDarkMode ? 0.1 : 0.05
       }} />
       
-      {/* 10. Animated mouse follower with enhanced effect */}
+      {/* 10. Animated mouse follower with enhanced effect - THEME AWARE */}
       <motion.div
         className="absolute pointer-events-none inset-0"
         style={{
-          background: `radial-gradient(circle at ${springX}px ${springY}px, 
-            rgba(139, 92, 246, 0.2) 0%, 
-            rgba(236, 72, 153, 0.1) 30%, 
-            transparent 60%)`,
+          background: isDarkMode
+            ? `radial-gradient(circle at ${springX}px ${springY}px, 
+                rgba(139, 92, 246, 0.2) 0%, 
+                rgba(236, 72, 153, 0.1) 30%, 
+                transparent 60%)`
+            : `radial-gradient(circle at ${springX}px ${springY}px, 
+                rgba(139, 92, 246, 0.15) 0%, 
+                rgba(236, 72, 153, 0.08) 30%, 
+                transparent 60%)`,
         }}
       />
       
-      {/* 11. Floating nebula clouds */}
+      {/* 11. Floating nebula clouds - THEME AWARE */}
       {clouds.map((cloud) => (
         <motion.div
           key={`cloud-${cloud.id}`}
-          className="absolute rounded-full blur-[100px] mix-blend-screen"
+          className="absolute rounded-full blur-[100px]"
           style={{
             width: cloud.width,
             height: cloud.height,
             background: `radial-gradient(circle at center, 
-              ${cloud.color === 'purple' ? '#8b5cf6' : cloud.color === 'pink' ? '#ec4899' : '#3b82f6'}20, 
+              ${cloud.color === 'purple' 
+                ? (isDarkMode ? '#8b5cf6' : '#c084fc') 
+                : cloud.color === 'pink' 
+                ? (isDarkMode ? '#ec4899' : '#f9a8d4') 
+                : (isDarkMode ? '#3b82f6' : '#93c5fd')}${isDarkMode ? '20' : '15'}, 
               transparent 70%)`,
             left: `${cloud.left}%`,
             top: `${cloud.top}%`,
@@ -398,50 +469,63 @@ export default function Footer() {
         />
       ))}
       
-      {/* 12. Animated corner accents */}
+      {/* 12. Animated corner accents - THEME AWARE */}
       <div className="absolute top-0 left-0 w-64 h-64">
         <motion.div 
-          className="absolute top-0 left-0 w-32 h-32 border-t-2 border-l-2 border-purple-500/30 rounded-tl-3xl"
+          className={`absolute top-0 left-0 w-32 h-32 border-t-2 border-l-2 ${
+            isDarkMode ? 'border-purple-500/30' : 'border-purple-400/30'
+          } rounded-tl-3xl`}
           animate={{
             scale: [1, 1.1, 1],
-            opacity: [0.3, 0.6, 0.3],
+            opacity: isDarkMode ? [0.3, 0.6, 0.3] : [0.2, 0.4, 0.2],
           }}
           transition={{ duration: 4, repeat: Infinity }}
         />
       </div>
       <div className="absolute top-0 right-0 w-64 h-64">
         <motion.div 
-          className="absolute top-0 right-0 w-32 h-32 border-t-2 border-r-2 border-pink-500/30 rounded-tr-3xl"
+          className={`absolute top-0 right-0 w-32 h-32 border-t-2 border-r-2 ${
+            isDarkMode ? 'border-pink-500/30' : 'border-pink-400/30'
+          } rounded-tr-3xl`}
           animate={{
             scale: [1, 1.1, 1],
-            opacity: [0.3, 0.6, 0.3],
+            opacity: isDarkMode ? [0.3, 0.6, 0.3] : [0.2, 0.4, 0.2],
           }}
           transition={{ duration: 4, repeat: Infinity, delay: 1 }}
         />
       </div>
       <div className="absolute bottom-0 left-0 w-64 h-64">
         <motion.div 
-          className="absolute bottom-0 left-0 w-32 h-32 border-b-2 border-l-2 border-blue-500/30 rounded-bl-3xl"
+          className={`absolute bottom-0 left-0 w-32 h-32 border-b-2 border-l-2 ${
+            isDarkMode ? 'border-blue-500/30' : 'border-blue-400/30'
+          } rounded-bl-3xl`}
           animate={{
             scale: [1, 1.1, 1],
-            opacity: [0.3, 0.6, 0.3],
+            opacity: isDarkMode ? [0.3, 0.6, 0.3] : [0.2, 0.4, 0.2],
           }}
           transition={{ duration: 4, repeat: Infinity, delay: 2 }}
         />
       </div>
       <div className="absolute bottom-0 right-0 w-64 h-64">
         <motion.div 
-          className="absolute bottom-0 right-0 w-32 h-32 border-b-2 border-r-2 border-purple-500/30 rounded-br-3xl"
+          className={`absolute bottom-0 right-0 w-32 h-32 border-b-2 border-r-2 ${
+            isDarkMode ? 'border-purple-500/30' : 'border-purple-400/30'
+          } rounded-br-3xl`}
           animate={{
             scale: [1, 1.1, 1],
-            opacity: [0.3, 0.6, 0.3],
+            opacity: isDarkMode ? [0.3, 0.6, 0.3] : [0.2, 0.4, 0.2],
           }}
           transition={{ duration: 4, repeat: Infinity, delay: 3 }}
         />
       </div>
       
-      {/* 13. Vignette effect */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_30%,_#030014_100%)] pointer-events-none"></div>
+      {/* 13. Vignette effect - THEME AWARE */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse at center, transparent 30%, ${vignetteColor} 100%)`
+        }}
+      />
       
       {/* 14. Subtle noise texture */}
       <div className="absolute inset-0 opacity-20 mix-blend-overlay" style={{
@@ -467,11 +551,15 @@ export default function Footer() {
               viewport={{ once: true }}
             >
               <motion.h2 
-                className="text-5xl font-extrabold mb-4 tracking-tight"
+                className={`text-5xl font-extrabold mb-4 tracking-tight ${textPrimary}`}
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+                <span className={`bg-gradient-to-r ${
+                  isDarkMode 
+                    ? 'from-white via-purple-200 to-pink-200' 
+                    : 'from-gray-900 via-purple-600 to-pink-600'
+                } bg-clip-text text-transparent`}>
                   CRM
                 </span>
                 <motion.span
@@ -483,7 +571,7 @@ export default function Footer() {
                 </motion.span>
               </motion.h2>
               
-              <p className="text-gray-400 leading-relaxed max-w-md mb-6">
+              <p className={`${textTertiary} leading-relaxed max-w-md mb-6`}>
                 The next-generation SaaS platform that empowers businesses to scale faster with intelligent automation and real-time insights.
               </p>
               
@@ -501,8 +589,8 @@ export default function Footer() {
                     transition={{ delay: idx * 0.1 }}
                     whileHover={{ y: -5 }}
                   >
-                    <div className="text-2xl font-bold text-white">{stat.value}</div>
-                    <div className="text-xs text-gray-500">{stat.label}</div>
+                    <div className={`text-2xl font-bold ${textPrimary}`}>{stat.value}</div>
+                    <div className={`text-xs ${textTertiary}`}>{stat.label}</div>
                   </motion.div>
                 ))}
               </div>
@@ -520,12 +608,20 @@ export default function Footer() {
                     href="#"
                     whileHover={{ scale: 1.15, rotate: 5 }}
                     whileTap={{ scale: 0.9 }}
-                    className="group relative w-11 h-11 bg-white/5 backdrop-blur-sm rounded-xl flex items-center justify-center text-gray-400 hover:text-white border border-white/10 hover:border-purple-400/50 transition-all duration-300"
+                    className={`group relative w-11 h-11 ${socialIconBg} backdrop-blur-sm rounded-xl flex items-center justify-center ${
+                      isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'
+                    } border transition-all duration-300`}
+                    style={{
+                      borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(139,92,246,0.2)',
+                      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(139,92,246,0.05)'
+                    }}
                     aria-label={social.label}
                   >
                     <social.icon className="text-base" />
                     <motion.span 
-                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20"
+                      className={`absolute inset-0 rounded-xl bg-gradient-to-r ${
+                        isDarkMode ? 'from-purple-500/20 to-pink-500/20' : 'from-purple-400/20 to-pink-400/20'
+                      }`}
                       initial={{ opacity: 0, scale: 0.8 }}
                       whileHover={{ opacity: 1, scale: 1.2 }}
                       transition={{ duration: 0.3 }}
@@ -549,17 +645,25 @@ export default function Footer() {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, type: "spring", delay: 0.2 }}
               viewport={{ once: true }}
-              whileHover={{ boxShadow: "0 25px 50px -12px rgba(168, 85, 247, 0.5)" }}
-              className="bg-gradient-to-br from-purple-900/40 via-pink-900/30 to-blue-900/40 backdrop-blur-xl p-8 rounded-3xl border border-purple-500/30 shadow-2xl relative overflow-hidden group"
+              style={{
+                boxShadow: isDarkMode
+                  ? "0 25px 50px -12px rgba(168, 85, 247, 0.5)"
+                  : "0 25px 50px -12px rgba(168, 85, 247, 0.3)"
+              }}
+              className={`${cardBg} backdrop-blur-xl p-8 rounded-3xl border ${borderColor} relative overflow-hidden group`}
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
               {/* Animated background pattern */}
               <motion.div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                className="absolute inset-0 transition-opacity duration-700"
+                style={{ opacity: 0 }}
                 animate={{
-                  background: isHovered 
+                  opacity: isHovered ? 1 : 0,
+                  background: isHovered && isDarkMode
                     ? "radial-gradient(circle at 30% 50%, rgba(168, 85, 247, 0.2), transparent 50%)"
+                    : isHovered && !isDarkMode
+                    ? "radial-gradient(circle at 30% 50%, rgba(168, 85, 247, 0.1), transparent 50%)"
                     : "none"
                 }}
               />
@@ -569,7 +673,9 @@ export default function Footer() {
                   rotate: isHovered ? [0, 360] : 0
                 }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-full blur-2xl"
+                className={`absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-r ${
+                  isDarkMode ? 'from-purple-500/10 to-pink-500/10' : 'from-purple-400/10 to-pink-400/10'
+                } rounded-full blur-2xl`}
               />
               
               <div className="relative">
@@ -579,13 +685,13 @@ export default function Footer() {
                   transition={{ duration: 0.5 }}
                 >
                   <FaRocket className="text-purple-400 text-2xl" />
-                  <h3 className="text-2xl font-semibold text-white">
+                  <h3 className={`text-2xl font-semibold ${textPrimary}`}>
                     Stay ahead of the curve
                   </h3>
                   <HiOutlineSparkles className="text-yellow-400 text-xl" />
                 </motion.div>
                 
-                <p className="text-gray-300 mb-6">
+                <p className={`${textSecondary} mb-6`}>
                   Join 10,000+ subscribers getting product updates, industry insights, and exclusive offers.
                 </p>
                 
@@ -596,9 +702,13 @@ export default function Footer() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email" 
-                      className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all pr-12"
+                      className={`w-full px-5 py-4 ${inputBg} border rounded-xl ${
+                        isDarkMode 
+                          ? 'text-white placeholder-gray-500' 
+                          : 'text-gray-900 placeholder-gray-400'
+                      } focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all pr-12`}
                     />
-                    <FiMail className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                    <FiMail className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${textTertiary}`} />
                   </div>
                   
                   <motion.button 
@@ -635,8 +745,8 @@ export default function Footer() {
                   {features.map((feature, idx) => (
                     <motion.div
                       key={idx}
-                      className="flex items-center gap-2 text-sm text-gray-400"
-                      whileHover={{ scale: 1.05, color: "#fff" }}
+                      className={`flex items-center gap-2 text-sm ${textTertiary}`}
+                      whileHover={{ scale: 1.05, color: isDarkMode ? "#fff" : "#000" }}
                     >
                       <feature.icon className={`text-${feature.color}-400`} />
                       <span>{feature.text}</span>
@@ -649,7 +759,9 @@ export default function Footer() {
         </motion.div>
 
         {/* LINKS GRID - WITH STAGGER ANIMATION */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 py-8 border-t border-white/5">
+        <div className={`grid md:grid-cols-2 lg:grid-cols-4 gap-8 py-8 border-t ${
+          isDarkMode ? 'border-white/5' : 'border-gray-200'
+        }`}>
           
           {[
             {
@@ -679,7 +791,7 @@ export default function Footer() {
               transition={{ duration: 0.5, delay: sectionIdx * 0.1 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-lg font-semibold text-white mb-5 flex items-center gap-2">
+              <h3 className={`text-lg font-semibold ${textPrimary} mb-5 flex items-center gap-2`}>
                 <motion.span 
                   className="w-1 h-4 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full"
                   animate={{
@@ -703,7 +815,7 @@ export default function Footer() {
                     transition={{ delay: (sectionIdx * 0.1) + (idx * 0.05) }}
                     whileHover={{ x: 5 }}
                   >
-                    <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200 flex items-center gap-2 group">
+                    <a href="#" className={`${linkColor} transition-colors duration-200 flex items-center gap-2 group`}>
                       <motion.span
                         className="w-1 h-1 bg-purple-400 rounded-full opacity-0 group-hover:opacity-100"
                         animate={{
@@ -746,7 +858,7 @@ export default function Footer() {
 
         {/* BOTTOM BAR - WITH CONTACT INFO AND TRUST BADGES */}
         <motion.div 
-          className="border-t border-white/5 mt-12 pt-8 flex flex-col lg:flex-row items-center justify-between gap-6"
+          className={`border-t ${isDarkMode ? 'border-white/5' : 'border-gray-200'} mt-12 pt-8 flex flex-col lg:flex-row items-center justify-between gap-6`}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
@@ -754,12 +866,14 @@ export default function Footer() {
         >
           
           {/* COPYRIGHT */}
-          <div className="text-gray-400 text-sm flex items-center gap-2">
+          <div className={`${textTertiary} text-sm flex items-center gap-2`}>
             <span>© {currentYear} CRM Platform.</span>
             <motion.span 
               className="flex items-center gap-1"
               animate={{
-                color: ["#9ca3af", "#c084fc", "#9ca3af"]
+                color: isDarkMode 
+                  ? ["#9ca3af", "#c084fc", "#9ca3af"]
+                  : ["#6b7280", "#9333ea", "#6b7280"]
               }}
               transition={{
                 duration: 3,
@@ -771,7 +885,7 @@ export default function Footer() {
           </div>
 
           {/* CONTACT INFO */}
-          <div className="flex items-center gap-6 text-sm text-gray-400">
+          <div className={`flex items-center gap-6 text-sm ${textTertiary}`}>
             <motion.div 
               className="flex items-center gap-2"
               whileHover={{ scale: 1.05 }}
@@ -793,8 +907,16 @@ export default function Footer() {
             {["ISO 27001", "SOC 2", "GDPR"].map((badge, idx) => (
               <motion.div
                 key={badge}
-                className="px-3 py-1 bg-white/5 rounded-full text-xs text-gray-400 border border-white/10"
-                whileHover={{ scale: 1.1, backgroundColor: "rgba(168, 85, 247, 0.2)" }}
+                className={`px-3 py-1 rounded-full text-xs border`}
+                style={{
+                  backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(139,92,246,0.05)',
+                  borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(139,92,246,0.2)',
+                  color: isDarkMode ? '#9ca3af' : '#6b7280'
+                }}
+                whileHover={{ 
+                  scale: 1.1, 
+                  backgroundColor: isDarkMode ? 'rgba(168, 85, 247, 0.2)' : 'rgba(168, 85, 247, 0.1)' 
+                }}
                 animate={{
                   y: [0, -2, 0],
                 }}
@@ -812,7 +934,7 @@ export default function Footer() {
 
         {/* MADE WITH LOVE ANIMATION */}
         <motion.div 
-          className="mt-8 text-center text-xs text-gray-600 flex items-center justify-center gap-1"
+          className={`mt-8 text-center text-xs ${textTertiary} flex items-center justify-center gap-1`}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 1 }}
@@ -822,7 +944,6 @@ export default function Footer() {
           <motion.div
             animate={{
               scale: [1, 1.2, 1],
-              color: ["#ef4444", "#f97316", "#ef4444"]
             }}
             transition={{
               duration: 1.5,

@@ -2,8 +2,19 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 
+// Create the context
 const ThemeContext = createContext();
 
+// Custom hook to use the theme context
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+}
+
+// Theme Provider component
 export function ThemeProvider({ children }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -38,13 +49,15 @@ export function ThemeProvider({ children }) {
     }
   };
 
+  const value = {
+    isDarkMode,
+    toggleTheme,
+    mounted
+  };
+
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleTheme, mounted }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
-}
-
-export function useTheme() {
-  return useContext(ThemeContext);
-}
+} 

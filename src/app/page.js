@@ -7,10 +7,12 @@ import Footer from "@/components/Footer";
 import About from "@/components/About";
 import OurProducts from "@/components/OurProducts";
 import { Phone, ArrowUp } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Home() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     setMounted(true);
@@ -49,10 +51,10 @@ export default function Home() {
 
   return (
     <>
-      {/* Call Us Button */}
+      {/* Call Us Button - theme aware */}
       <button
         onClick={handleCallUs}
-        className="fixed bottom-6 left-6 z-50 flex items-center gap-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+        className={`fixed bottom-6 left-6 z-50 flex items-center gap-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300`}
       >
         <div className="bg-white/20 p-1.5 rounded-lg">
           <Phone className="w-4 h-4" />
@@ -63,7 +65,7 @@ export default function Home() {
         </div>
       </button>
 
-      {/* Back to Top Button - Icon Only */}
+      {/* Back to Top Button - theme aware */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
@@ -72,10 +74,14 @@ export default function Home() {
         >
           <div className="relative">
             {/* Outer Ring with Pulse */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur-md opacity-60 group-hover:opacity-80"></div>
+            <div className={`absolute inset-0 ${
+              isDarkMode 
+                ? 'bg-gradient-to-r from-purple-400 to-indigo-400' 
+                : 'bg-gradient-to-r from-purple-300 to-indigo-300'
+            } rounded-full blur-md opacity-60 group-hover:opacity-80`}></div>
             
             {/* Inner Button */}
-            <div className="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+            <div className={`relative w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-300`}>
               <ArrowUp className="w-5 h-5 text-white group-hover:animate-bounce" />
               
               {/* Shine Effect */}
@@ -89,7 +95,6 @@ export default function Home() {
         </button>
       )}
 
-      {/* Move animations to global CSS or use Tailwind classes only */}
       <Hero />
       <About />
       <FeaturesSection />
@@ -97,4 +102,4 @@ export default function Home() {
       <Footer />
     </>
   );
-}
+} 

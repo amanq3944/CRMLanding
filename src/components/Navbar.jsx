@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import { 
   FiMenu, FiX, FiArrowRight, FiStar, FiZap, 
   FiGlobe, FiCpu, FiShield, FiTrendingUp, FiChevronDown,
-  FiPieChart, FiUsers, FiMail,
+  FiPieChart, FiUsers, FiMail, FiSun, FiMoon,
 } from "react-icons/fi";
 import { 
   IoMdRocket, IoMdAnalytics
@@ -20,6 +20,7 @@ import {
 } from "react-icons/hi";
 import { FaRobot, FaMagic, FaCrown, FaRegGem, FaBolt, FaUserTie, FaRocket } from "react-icons/fa";
 import { GiCrystalShine } from "react-icons/gi";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -28,6 +29,8 @@ export default function Navbar() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMounted, setIsMounted] = useState(false);
+  
+  const { isDarkMode, toggleTheme } = useTheme();
   
   const navbarRef = useRef(null);
   const dropdownTimeoutRef = useRef(null);
@@ -53,6 +56,18 @@ export default function Navbar() {
   
   // Border radius transform
   const navbarRadius = useTransform(scrollY, [0, 100], [0, 24]);
+  
+  // Theme-aware gradient backgrounds
+  const navbarGradient = isDarkMode
+    ? "linear-gradient(to right, #0a061f, #1a1446, #0f0a2a)"
+    : "linear-gradient(to right, #ffffff, #f8fafc, #f1f5f9)";
+  
+  const textColor = isDarkMode ? "text-gray-200" : "text-gray-700";
+  const textColorHover = isDarkMode ? "hover:text-white" : "hover:text-gray-900";
+  const borderColor = isDarkMode ? "border-purple-500/30" : "border-purple-300/50";
+  const dropdownBg = isDarkMode
+    ? "bg-gradient-to-b from-[#1a1446] to-[#0f0a2a]"
+    : "bg-gradient-to-b from-white to-gray-50";
   
   // Mount effect
   useEffect(() => {
@@ -248,7 +263,7 @@ export default function Navbar() {
   // Server-side fallback
   if (!isMounted) {
     return (
-      <header className="w-full fixed top-0 left-0 z-50 bg-gradient-to-r from-[#0a061f] via-[#1a1446] to-[#0f0a2a] h-[100px]">
+      <header className={`w-full fixed top-0 left-0 z-50 ${isDarkMode ? 'bg-[#0a061f]' : 'bg-white'} h-[100px]`}>
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-purple-500/20 rounded-full"></div>
@@ -279,7 +294,7 @@ export default function Navbar() {
         <motion.div 
           className="absolute inset-0 rounded-[inherit]"
           style={{
-            background: "linear-gradient(to right, #0a061f, #1a1446, #0f0a2a)",
+            background: navbarGradient,
             opacity: headerOpacity,
             backdropFilter: `blur(${headerBlur}px)`,
           }}
@@ -289,12 +304,19 @@ export default function Navbar() {
         <motion.div 
           className="absolute inset-0 opacity-40 rounded-[inherit]"
           animate={{
-            background: [
-              "radial-gradient(circle at 0% 50%, rgba(139,92,246,0.2) 0%, transparent 50%)",
-              "radial-gradient(circle at 100% 50%, rgba(236,72,153,0.2) 0%, transparent 50%)",
-              "radial-gradient(circle at 50% 0%, rgba(139,92,246,0.2) 0%, transparent 50%)",
-              "radial-gradient(circle at 0% 50%, rgba(139,92,246,0.2) 0%, transparent 50%)",
-            ]
+            background: isDarkMode
+              ? [
+                  "radial-gradient(circle at 0% 50%, rgba(139,92,246,0.2) 0%, transparent 50%)",
+                  "radial-gradient(circle at 100% 50%, rgba(236,72,153,0.2) 0%, transparent 50%)",
+                  "radial-gradient(circle at 50% 0%, rgba(139,92,246,0.2) 0%, transparent 50%)",
+                  "radial-gradient(circle at 0% 50%, rgba(139,92,246,0.2) 0%, transparent 50%)",
+                ]
+              : [
+                  "radial-gradient(circle at 0% 50%, rgba(139,92,246,0.1) 0%, transparent 50%)",
+                  "radial-gradient(circle at 100% 50%, rgba(236,72,153,0.1) 0%, transparent 50%)",
+                  "radial-gradient(circle at 50% 0%, rgba(139,92,246,0.1) 0%, transparent 50%)",
+                  "radial-gradient(circle at 0% 50%, rgba(139,92,246,0.1) 0%, transparent 50%)",
+                ]
           }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
         />
@@ -314,7 +336,7 @@ export default function Navbar() {
         {floatingParticles.map((particle) => (
           <motion.div
             key={particle.id}
-            className="absolute rounded-full bg-purple-400/30 blur-sm"
+            className={`absolute rounded-full ${isDarkMode ? 'bg-purple-400/30' : 'bg-purple-400/20'} blur-sm`}
             style={{ 
               width: particle.size, 
               height: particle.size,
@@ -340,7 +362,7 @@ export default function Navbar() {
           <motion.div
             className="absolute inset-0 pointer-events-none rounded-[inherit]"
             animate={{
-              background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(168,85,247,0.2) 0%, transparent 60%)`
+              background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, ${isDarkMode ? 'rgba(168,85,247,0.2)' : 'rgba(168,85,247,0.1)'} 0%, transparent 60%)`
             }}
             transition={{ type: "spring", stiffness: 50, damping: 20 }}
           />
@@ -376,7 +398,7 @@ export default function Navbar() {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
               >
-                <div className="absolute inset-0 rounded-full border-2 border-purple-500/30 border-t-purple-500 border-r-transparent border-b-transparent border-l-transparent"></div>
+                <div className={`absolute inset-0 rounded-full border-2 ${isDarkMode ? 'border-purple-500/30 border-t-purple-500' : 'border-purple-400/30 border-t-purple-500'} border-r-transparent border-b-transparent border-l-transparent`}></div>
               </motion.div>
               
               <motion.div 
@@ -384,7 +406,7 @@ export default function Navbar() {
                 animate={{ rotate: -360 }}
                 transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
               >
-                <div className="absolute inset-0 rounded-full border border-pink-500/30 border-b-pink-500 border-l-transparent border-t-transparent border-r-transparent"></div>
+                <div className={`absolute inset-0 rounded-full border ${isDarkMode ? 'border-pink-500/30 border-b-pink-500' : 'border-pink-400/30 border-b-pink-500'} border-l-transparent border-t-transparent border-r-transparent`}></div>
               </motion.div>
               
               {/* Pulsing background */}
@@ -399,7 +421,7 @@ export default function Navbar() {
                 animate={{ rotate: [0, 360] }}
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
               >
-                <GiCrystalShine className="relative text-5xl text-purple-300 filter drop-shadow-2xl" />
+                <GiCrystalShine className={`relative text-5xl ${isDarkMode ? 'text-purple-300' : 'text-purple-600'} filter drop-shadow-2xl`} />
               </motion.div>
               
               {/* Sparkles */}
@@ -426,15 +448,23 @@ export default function Navbar() {
                 className="text-5xl font-black tracking-tight"
                 animate={{ 
                   backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                  textShadow: [
-                    "0 0 20px rgba(168,85,247,0.5)",
-                    "0 0 40px rgba(236,72,153,0.5)",
-                    "0 0 20px rgba(168,85,247,0.5)"
-                  ]
+                  textShadow: isDarkMode
+                    ? [
+                        "0 0 20px rgba(168,85,247,0.5)",
+                        "0 0 40px rgba(236,72,153,0.5)",
+                        "0 0 20px rgba(168,85,247,0.5)"
+                      ]
+                    : [
+                        "0 0 10px rgba(168,85,247,0.3)",
+                        "0 0 20px rgba(236,72,153,0.3)",
+                        "0 0 10px rgba(168,85,247,0.3)"
+                      ]
                 }}
                 transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                 style={{
-                  backgroundImage: "linear-gradient(90deg, #fff, #c084fc, #f9a8d4, #818cf8, #fff)",
+                  backgroundImage: isDarkMode
+                    ? "linear-gradient(90deg, #fff, #c084fc, #f9a8d4, #818cf8, #fff)"
+                    : "linear-gradient(90deg, #4b5563, #7e22ce, #db2777, #4f46e5, #4b5563)",
                   backgroundSize: "300% 100%",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent"
@@ -454,13 +484,16 @@ export default function Navbar() {
 
             {/* Badge */}
             <motion.div 
-              className="hidden sm:flex items-center gap-2 ml-2 px-4 py-1.5 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full border border-purple-400/30 backdrop-blur-sm"
+              className={`hidden sm:flex items-center gap-2 ml-2 px-4 py-1.5 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full border ${borderColor} backdrop-blur-sm`}
               whileHover={{ scale: 1.1, rotate: [0, -2, 2, 0] }}
-              animate={{ boxShadow: ["0 0 0px rgba(168,85,247,0.3)", "0 0 20px rgba(168,85,247,0.6)", "0 0 0px rgba(168,85,247,0.3)"] }}
+              animate={{ boxShadow: isDarkMode
+                ? ["0 0 0px rgba(168,85,247,0.3)", "0 0 20px rgba(168,85,247,0.6)", "0 0 0px rgba(168,85,247,0.3)"]
+                : ["0 0 0px rgba(168,85,247,0.2)", "0 0 15px rgba(168,85,247,0.4)", "0 0 0px rgba(168,85,247,0.2)"]
+              }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <FaRegGem className="text-purple-300 animate-pulse" />
-              <span className="text-xs font-bold text-purple-200">ELITE</span>
+              <FaRegGem className={`${isDarkMode ? 'text-purple-300' : 'text-purple-600'} animate-pulse`} />
+              <span className={`text-xs font-bold ${isDarkMode ? 'text-purple-200' : 'text-purple-800'}`}>ELITE</span>
               <motion.span 
                 className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-400"
                 animate={{ scale: [1, 1.5, 1] }}
@@ -487,7 +520,7 @@ export default function Navbar() {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 + 0.3, type: "spring" }}
-                  className="relative px-4 py-2 flex items-center gap-2 text-gray-200 hover:text-white font-medium transition-colors overflow-hidden group"
+                  className={`relative px-4 py-2 flex items-center gap-2 ${textColor} ${textColorHover} font-medium transition-colors overflow-hidden group`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -517,7 +550,7 @@ export default function Navbar() {
                   />
                   
                   <motion.div 
-                    className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg -z-10"
+                    className={`absolute inset-0 ${isDarkMode ? 'bg-gradient-to-r from-purple-500/10 to-pink-500/10' : 'bg-gradient-to-r from-purple-400/10 to-pink-400/10'} rounded-lg -z-10`}
                     initial={{ opacity: 0 }}
                     whileHover={{ opacity: 1 }}
                     transition={{ duration: 0.3 }}
@@ -532,7 +565,7 @@ export default function Navbar() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.2, type: "spring", bounce: 0.2 }}
-                      className="absolute top-full left-0 mt-2 w-72 bg-gradient-to-b from-[#1a1446] to-[#0f0a2a] rounded-2xl border border-purple-500/30 shadow-2xl overflow-hidden"
+                      className={`absolute top-full left-0 mt-2 w-72 ${dropdownBg} rounded-2xl border ${borderColor} shadow-2xl overflow-hidden`}
                       style={{ backdropFilter: "blur(20px)" }}
                       onMouseEnter={() => handleDropdownEnter(i)}
                       onMouseLeave={handleDropdownLeave}
@@ -540,27 +573,27 @@ export default function Navbar() {
                       {/* Decorative elements */}
                       <div className="absolute inset-0 overflow-hidden">
                         <motion.div 
-                          className="absolute -top-20 -left-20 w-40 h-40 bg-purple-600 rounded-full blur-3xl opacity-20"
+                          className={`absolute -top-20 -left-20 w-40 h-40 ${isDarkMode ? 'bg-purple-600' : 'bg-purple-400'} rounded-full blur-3xl opacity-20`}
                           animate={{ x: [0, 20, 0], y: [0, 20, 0] }}
                           transition={{ duration: 5, repeat: Infinity }}
                         />
                         <motion.div 
-                          className="absolute -bottom-20 -right-20 w-40 h-40 bg-pink-600 rounded-full blur-3xl opacity-20"
+                          className={`absolute -bottom-20 -right-20 w-40 h-40 ${isDarkMode ? 'bg-pink-600' : 'bg-pink-400'} rounded-full blur-3xl opacity-20`}
                           animate={{ x: [0, -20, 0], y: [0, -20, 0] }}
                           transition={{ duration: 5, repeat: Infinity }}
                         />
                       </div>
 
                       {/* Dropdown header */}
-                      <div className="relative px-4 py-3 border-b border-purple-500/20 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
+                      <div className={`relative px-4 py-3 border-b ${borderColor} bg-gradient-to-r from-purple-500/10 to-pink-500/10`}>
                         <div className="flex items-center gap-2">
                           <motion.div
                             animate={{ rotate: 360 }}
                             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                           >
-                            <BsLightningCharge className="text-purple-400" />
+                            <BsLightningCharge className={isDarkMode ? 'text-purple-400' : 'text-purple-600'} />
                           </motion.div>
-                          <span className="text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                          <span className={`text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400`}>
                             {item.name} Menu
                           </span>
                         </div>
@@ -575,8 +608,8 @@ export default function Navbar() {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: dropIndex * 0.05 }}
-                            whileHover={{ x: 5, backgroundColor: "rgba(168,85,247,0.1)" }}
-                            className="flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer group/item"
+                            whileHover={{ x: 5, backgroundColor: isDarkMode ? "rgba(168,85,247,0.1)" : "rgba(168,85,247,0.05)" }}
+                            className={`flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer group/item ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
                           >
                             <div className={`p-2 rounded-lg bg-gradient-to-br ${item.gradient} bg-opacity-20`}>
                               <motion.div
@@ -590,7 +623,7 @@ export default function Navbar() {
                             
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <span className="font-medium text-white">{dropItem.title}</span>
+                                <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{dropItem.title}</span>
                                 {dropItem.badge && (
                                   <motion.span 
                                     className={`text-[10px] px-1.5 py-0.5 rounded-full ${
@@ -607,7 +640,7 @@ export default function Navbar() {
                                   </motion.span>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-400">{dropItem.desc}</p>
+                              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{dropItem.desc}</p>
                             </div>
 
                             <motion.div
@@ -622,11 +655,11 @@ export default function Navbar() {
                       </div>
 
                       {/* Dropdown footer */}
-                      <div className="relative px-4 py-3 border-t border-purple-500/20 bg-gradient-to-r from-purple-500/5 to-pink-500/5">
+                      <div className={`relative px-4 py-3 border-t ${borderColor} bg-gradient-to-r from-purple-500/5 to-pink-500/5`}>
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="w-full flex items-center justify-between text-sm text-purple-300 hover:text-white transition-colors"
+                          className={`w-full flex items-center justify-between text-sm ${isDarkMode ? 'text-purple-300 hover:text-white' : 'text-purple-600 hover:text-purple-800'} transition-colors`}
                         >
                           <span>View all {item.name.toLowerCase()}</span>
                           <FiArrowRight />
@@ -639,11 +672,82 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Right Side Actions - Only CTA Button */}
+          {/* Right Side Actions */}
           <motion.div 
-            className="hidden md:flex items-center"
+            className="hidden md:flex items-center gap-3"
             style={{ scale: buttonScale }}
           >
+            {/* Theme Toggle Button */}
+            <motion.button
+              onClick={toggleTheme}
+              className={`relative w-12 h-12 rounded-full flex items-center justify-center cursor-pointer overflow-hidden group`}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, type: "spring" }}
+            >
+              {/* Background glow */}
+              <motion.div
+                className={`absolute inset-0 rounded-full blur-md ${
+                  isDarkMode ? 'bg-purple-500/30' : 'bg-yellow-500/30'
+                }`}
+                animate={{
+                  scale: [1, 1.2, 1],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+              
+              {/* Button background */}
+              <div className={`absolute inset-0 rounded-full ${
+                isDarkMode 
+                  ? 'bg-gradient-to-br from-indigo-900 to-purple-900' 
+                  : 'bg-gradient-to-br from-yellow-400 to-orange-400'
+              }`} />
+              
+              {/* Icon container */}
+              <motion.div
+                key={isDarkMode ? 'dark' : 'light'}
+                initial={{ rotate: -180, scale: 0 }}
+                animate={{ rotate: 0, scale: 1 }}
+                exit={{ rotate: 180, scale: 0 }}
+                transition={{ duration: 0.5, type: "spring" }}
+                className="relative z-10"
+              >
+                {isDarkMode ? (
+                  <FiMoon className="w-6 h-6 text-white" />
+                ) : (
+                  <FiSun className="w-6 h-6 text-white" />
+                )}
+              </motion.div>
+
+              {/* Ripple effect on hover */}
+              <motion.div
+                className={`absolute inset-0 rounded-full ${
+                  isDarkMode ? 'bg-purple-400' : 'bg-yellow-400'
+                }`}
+                initial={{ scale: 0, opacity: 0.5 }}
+                whileHover={{ scale: 1.5, opacity: 0 }}
+                transition={{ duration: 0.8 }}
+              />
+
+              {/* Tooltip */}
+              <motion.div
+                className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 px-2 py-1 text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                style={{
+                  background: isDarkMode ? '#1f2937' : '#f3f4f6',
+                  color: isDarkMode ? '#fff' : '#000',
+                  border: `1px solid ${isDarkMode ? '#374151' : '#e5e7eb'}`,
+                }}
+              >
+                {isDarkMode ? 'Switch to Light' : 'Switch to Dark'}
+              </motion.div>
+            </motion.button>
+
             {/* CTA Button */}
             <motion.button
               initial={{ opacity: 0, x: 30 }}
@@ -730,7 +834,7 @@ export default function Navbar() {
                 className="absolute top-full left-0 right-0 md:hidden z-50"
               >
                 <motion.div 
-                  className="bg-gradient-to-b from-[#1a1446] to-[#0f0a2a] border-t border-purple-500/30 shadow-2xl rounded-b-2xl"
+                  className={`${dropdownBg} border-t ${borderColor} shadow-2xl rounded-b-2xl`}
                   initial={{ scaleY: 0 }}
                   animate={{ scaleY: 1 }}
                   exit={{ scaleY: 0 }}
@@ -739,18 +843,44 @@ export default function Navbar() {
                 >
                   <div className="absolute inset-0 overflow-hidden rounded-b-2xl">
                     <motion.div 
-                      className="absolute -top-20 -left-20 w-40 h-40 bg-purple-600 rounded-full blur-3xl opacity-20"
+                      className={`absolute -top-20 -left-20 w-40 h-40 ${isDarkMode ? 'bg-purple-600' : 'bg-purple-400'} rounded-full blur-3xl opacity-20`}
                       animate={{ x: [0, 30, 0], y: [0, 20, 0] }}
                       transition={{ duration: 8, repeat: Infinity }}
                     />
                     <motion.div 
-                      className="absolute -bottom-20 -right-20 w-40 h-40 bg-pink-600 rounded-full blur-3xl opacity-20"
+                      className={`absolute -bottom-20 -right-20 w-40 h-40 ${isDarkMode ? 'bg-pink-600' : 'bg-pink-400'} rounded-full blur-3xl opacity-20`}
                       animate={{ x: [0, -30, 0], y: [0, -20, 0] }}
                       transition={{ duration: 8, repeat: Infinity }}
                     />
                   </div>
 
                   <div className="relative max-h-[calc(100vh-100px)] overflow-y-auto py-6 px-4">
+                    {/* Mobile Theme Toggle */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="flex items-center justify-between p-4 mb-4 bg-purple-500/10 rounded-xl border border-purple-500/20"
+                    >
+                      <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {isDarkMode ? 'Dark Mode' : 'Light Mode'}
+                      </span>
+                      <button
+                        onClick={toggleTheme}
+                        className={`relative w-12 h-12 rounded-full flex items-center justify-center ${
+                          isDarkMode 
+                            ? 'bg-gradient-to-br from-indigo-900 to-purple-900' 
+                            : 'bg-gradient-to-br from-yellow-400 to-orange-400'
+                        }`}
+                      >
+                        {isDarkMode ? (
+                          <FiMoon className="w-6 h-6 text-white" />
+                        ) : (
+                          <FiSun className="w-6 h-6 text-white" />
+                        )}
+                      </button>
+                    </motion.div>
+
                     {/* Mobile nav items */}
                     {navItems.map((item, i) => (
                       <MobileDropdown 
@@ -758,10 +888,11 @@ export default function Navbar() {
                         item={item} 
                         index={i} 
                         onItemClick={closeMenu}
+                        isDarkMode={isDarkMode}
                       />
                     ))}
 
-                    {/* Mobile CTA - Replaced FiSparkles with FaRocket */}
+                    {/* Mobile CTA */}
                     <motion.button
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -799,11 +930,11 @@ export default function Navbar() {
                         <motion.div
                           key={stat.label}
                           whileHover={{ scale: 1.05 }}
-                          className="text-center p-3 bg-white/5 rounded-xl border border-purple-500/20"
+                          className={`text-center p-3 ${isDarkMode ? 'bg-white/5' : 'bg-purple-50'} rounded-xl border ${borderColor}`}
                         >
-                          <div className="text-purple-400 text-xl mb-1">{stat.icon}</div>
-                          <div className="text-lg font-bold text-white">{stat.value}</div>
-                          <div className="text-xs text-gray-400">{stat.label}</div>
+                          <div className={`${isDarkMode ? 'text-purple-400' : 'text-purple-600'} text-xl mb-1`}>{stat.icon}</div>
+                          <div className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{stat.value}</div>
+                          <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{stat.label}</div>
                         </motion.div>
                       ))}
                     </motion.div>
@@ -820,7 +951,9 @@ export default function Navbar() {
         {[1, 2, 3, 4, 5].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full bg-gradient-to-r from-purple-400 to-pink-400 blur-xl"
+            className={`absolute rounded-full bg-gradient-to-r from-purple-400 to-pink-400 blur-xl ${
+              isDarkMode ? 'opacity-30' : 'opacity-20'
+            }`}
             style={{
               width: 2 + i * 2,
               height: 2 + i * 2,
@@ -844,8 +977,8 @@ export default function Navbar() {
   );
 }
 
-// Mobile Dropdown Component
-function MobileDropdown({ item, index, onItemClick }) {
+// Mobile Dropdown Component - Updated with theme
+function MobileDropdown({ item, index, onItemClick, isDarkMode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -857,7 +990,7 @@ function MobileDropdown({ item, index, onItemClick }) {
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 text-gray-200 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+        className={`w-full flex items-center justify-between p-4 ${isDarkMode ? 'text-gray-200 hover:text-white hover:bg-white/5' : 'text-gray-700 hover:text-gray-900 hover:bg-purple-50'} rounded-xl transition-all`}
       >
         <div className="flex items-center gap-3">
           <span className={`text-xl bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent`}>
@@ -890,9 +1023,13 @@ function MobileDropdown({ item, index, onItemClick }) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: dropIndex * 0.05 }}
                 onClick={onItemClick}
-                className="flex items-center gap-3 py-3 text-gray-300 hover:text-white border-b border-purple-500/10 last:border-0"
+                className={`flex items-center gap-3 py-3 ${
+                  isDarkMode 
+                    ? 'text-gray-300 hover:text-white border-purple-500/10' 
+                    : 'text-gray-600 hover:text-gray-900 border-purple-200'
+                } border-b last:border-0`}
               >
-                <span className="text-purple-400">{dropItem.icon}</span>
+                <span className={isDarkMode ? 'text-purple-400' : 'text-purple-600'}>{dropItem.icon}</span>
                 <span className="flex-1">{dropItem.title}</span>
                 {dropItem.badge && (
                   <span className="text-[10px] px-1.5 py-0.5 bg-purple-500/20 text-purple-300 rounded-full">

@@ -16,12 +16,9 @@ import {
   FaGem,
   FaBolt,
   FaCloud,
-  FaMoon,
-  FaComet,
-  FaMeteor,
-  FaGalacticRepublic
 } from "react-icons/fa";
 import { useRef, useEffect, useState, useCallback } from "react";
+import { useTheme } from "@/context/ThemeContext";
 
 const stats = [
   { value: "98", label: "Customer Satisfaction", icon: FaStar, suffix: "%" },
@@ -129,6 +126,8 @@ export default function About() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   
+  const { isDarkMode } = useTheme();
+  
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
@@ -162,7 +161,7 @@ export default function About() {
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // Advanced dark-themed particle system
+  // Theme-aware particle system
   useEffect(() => {
     if (!isClient || !canvasRef.current) return;
     
@@ -173,12 +172,12 @@ export default function About() {
     canvas.width = dimensions.width || window.innerWidth;
     canvas.height = dimensions.height || window.innerHeight;
     
-    // Particle system for dark theme
+    // Particle system - theme aware
     const particles = [];
-    const particleCount = 200;
+    const particleCount = isDarkMode ? 200 : 150;
     
-    // Colors for dark theme (more subtle, glowing)
-    const colors = [
+    // Theme-aware colors
+    const darkColors = [
       'rgba(139, 92, 246, ', // purple
       'rgba(59, 130, 246, ', // blue
       'rgba(168, 85, 247, ', // violet
@@ -186,31 +185,46 @@ export default function About() {
       'rgba(236, 72, 153, ', // pink
     ];
     
+    const lightColors = [
+      'rgba(139, 92, 246, ', // purple
+      'rgba(59, 130, 246, ', // blue
+      'rgba(168, 85, 247, ', // violet
+      'rgba(6, 182, 212, ',  // cyan
+      'rgba(236, 72, 153, ', // pink
+    ];
+    
+    const colors = isDarkMode ? darkColors : lightColors;
+    
+    // Theme-aware background gradient
+    const bgGradient = isDarkMode
+      ? ['#030014', '#0A0320', '#030014']
+      : ['#f5f3ff', '#ede9fe', '#f5f3ff'];
+    
     // Create particles
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        radius: Math.random() * 2.5 + 0.5,
+        radius: Math.random() * (isDarkMode ? 2.5 : 2) + 0.5,
         speedX: (Math.random() - 0.5) * 0.3,
         speedY: (Math.random() - 0.5) * 0.3,
         color: colors[Math.floor(Math.random() * colors.length)],
-        opacity: Math.random() * 0.4 + 0.1,
+        opacity: Math.random() * (isDarkMode ? 0.4 : 0.3) + 0.1,
         pulseSpeed: Math.random() * 0.02 + 0.005,
         pulsePhase: Math.random() * Math.PI * 2,
         connections: []
       });
     }
     
-    // Draw function for dark theme
+    // Draw function - theme aware
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Dark gradient background
+      // Theme-aware background gradient
       const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      gradient.addColorStop(0, '#030014');
-      gradient.addColorStop(0.5, '#0A0320');
-      gradient.addColorStop(1, '#030014');
+      gradient.addColorStop(0, bgGradient[0]);
+      gradient.addColorStop(0.5, bgGradient[1]);
+      gradient.addColorStop(1, bgGradient[2]);
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
@@ -231,11 +245,12 @@ export default function About() {
               particles[i].x, particles[i].y,
               particles[j].x, particles[j].y
             );
-            gradient.addColorStop(0, `rgba(139, 92, 246, ${0.05 * (1 - distance / 120)})`);
-            gradient.addColorStop(1, `rgba(59, 130, 246, ${0.05 * (1 - distance / 120)})`);
+            const opacity = isDarkMode ? 0.05 : 0.03;
+            gradient.addColorStop(0, `rgba(139, 92, 246, ${opacity * (1 - distance / 120)})`);
+            gradient.addColorStop(1, `rgba(59, 130, 246, ${opacity * (1 - distance / 120)})`);
             
             ctx.strokeStyle = gradient;
-            ctx.lineWidth = 0.3;
+            ctx.lineWidth = isDarkMode ? 0.3 : 0.2;
             ctx.stroke();
           }
         }
@@ -279,7 +294,7 @@ export default function About() {
         
         // Outer glow
         ctx.shadowColor = p.color.replace('rgba', 'rgb') + ')';
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = isDarkMode ? 10 : 5;
         ctx.fill();
         ctx.shadowBlur = 0;
       });
@@ -292,7 +307,7 @@ export default function About() {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isClient, dimensions, mousePosition]);
+  }, [isClient, dimensions, mousePosition, isDarkMode]);
 
   const handleMouseMove = useCallback((e) => {
     if (!containerRef.current) return;
@@ -332,59 +347,89 @@ export default function About() {
     }
   ];
 
+  // Theme-aware classes
+  const sectionBg = isDarkMode ? 'bg-[#030014]' : 'bg-gradient-to-b from-purple-50 via-white to-indigo-50';
+  const textPrimary = isDarkMode ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDarkMode ? 'text-gray-300' : 'text-gray-600';
+  const textTertiary = isDarkMode ? 'text-gray-400' : 'text-gray-500';
+  const borderColor = isDarkMode ? 'border-white/5' : 'border-purple-100';
+  const cardBg = isDarkMode ? 'bg-white/5' : 'bg-white/80';
+  const cardBorder = isDarkMode ? 'border-white/5' : 'border-purple-100';
+  const badgeBg = isDarkMode ? 'bg-white/5 border-purple-500/20' : 'bg-purple-100/50 border-purple-200';
+  const floatingCardBg = isDarkMode ? 'bg-black/40 backdrop-blur-xl border-purple-500/20' : 'bg-white/80 backdrop-blur-xl border-purple-200 shadow-lg';
+  const testimonialBg = isDarkMode ? 'bg-white/5 border-white/5' : 'bg-white/80 border-purple-100 shadow-sm';
+
   return (
     <section 
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className="relative py-20 md:py-32 bg-[#030014] overflow-hidden"
+      className={`relative py-20 md:py-32 ${sectionBg} overflow-hidden transition-colors duration-500`}
     >
-      {/* Canvas for dark particle effects */}
+      {/* Canvas for particle effects */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ opacity: 0.8 }}
+        style={{ opacity: isDarkMode ? 0.8 : 0.4 }}
       />
 
-      {/* Dark Themed Background Elements */}
+      {/* Theme-aware Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         
-        {/* Deep Space Nebula - Dark Purple */}
+        {/* Deep Space Nebula / Light Gradient Orbs */}
         <motion.div 
           style={{ y: y1, scale, opacity }}
           className="absolute -top-40 -right-40 w-[800px] h-[800px]"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-fuchsia-900/10 to-pink-900/20 rounded-full blur-3xl" />
-          <div className="absolute inset-0 bg-gradient-to-tl from-blue-900/20 via-indigo-900/10 to-purple-900/20 rounded-full blur-3xl animation-delay-2000" />
+          <div className={`absolute inset-0 bg-gradient-to-br ${
+            isDarkMode 
+              ? 'from-purple-900/20 via-fuchsia-900/10 to-pink-900/20' 
+              : 'from-purple-200/40 via-fuchsia-200/30 to-pink-200/40'
+          } rounded-full blur-3xl`} />
+          <div className={`absolute inset-0 bg-gradient-to-tl ${
+            isDarkMode 
+              ? 'from-blue-900/20 via-indigo-900/10 to-purple-900/20' 
+              : 'from-blue-200/40 via-indigo-200/30 to-purple-200/40'
+          } rounded-full blur-3xl animation-delay-2000`} />
         </motion.div>
         
-        {/* Dark Blue Nebula */}
+        {/* Second Nebula */}
         <motion.div 
           style={{ y: y2 }}
-          className="absolute -bottom-40 -left-40 w-[800px] h-[800px] bg-gradient-to-tr from-blue-900/20 via-indigo-900/10 to-purple-900/20 rounded-full blur-3xl animation-delay-1000"
+          className={`absolute -bottom-40 -left-40 w-[800px] h-[800px] bg-gradient-to-tr ${
+            isDarkMode 
+              ? 'from-blue-900/20 via-indigo-900/10 to-purple-900/20' 
+              : 'from-blue-200/40 via-indigo-200/30 to-purple-200/40'
+          } rounded-full blur-3xl animation-delay-1000`}
         />
         
-        {/* Center Galaxy - Dark Theme */}
+        {/* Center Galaxy */}
         <motion.div
           style={{ rotate, scale: useTransform(smoothProgress, [0, 0.5, 1], [0.8, 1.2, 0.8]) }}
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px]"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/10 via-transparent to-transparent rounded-full blur-3xl" />
-          <div className="absolute inset-0 bg-[conic-gradient(from_0deg,_#581c8720,_#1e3a8a20,_#83184320,_#581c8720)] rounded-full blur-3xl animate-spin-slow" />
+          <div className={`absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] ${
+            isDarkMode 
+              ? 'from-purple-900/10 via-transparent to-transparent' 
+              : 'from-purple-300/30 via-transparent to-transparent'
+          } rounded-full blur-3xl`} />
+          <div className={`absolute inset-0 bg-[conic-gradient(from_0deg,_${
+            isDarkMode ? '#581c8720,_#1e3a8a20,_#83184320,_#581c8720' : '#c084fc30,_#93c5fd30,_#f9a8d430,_#c084fc30'
+          })] rounded-full blur-3xl animate-spin-slow`} />
         </motion.div>
         
-        {/* Dark Grid with Glow */}
-        <svg className="absolute inset-0 w-full h-full opacity-20" style={{ perspective: "1000px" }}>
+        {/* Grid Pattern - Theme aware */}
+        <svg className="absolute inset-0 w-full h-full" style={{ perspective: "1000px", opacity: isDarkMode ? 0.2 : 0.1 }}>
           <defs>
-            <pattern id="darkGrid" patternUnits="userSpaceOnUse" width="80" height="80">
-              <path d="M 80 0 L 0 0 0 80" fill="none" stroke="url(#darkGridGradient)" strokeWidth="0.3" />
-              <circle cx="40" cy="40" r="1" fill="url(#darkGridGradient)" />
+            <pattern id={isDarkMode ? "darkGrid" : "lightGrid"} patternUnits="userSpaceOnUse" width="80" height="80">
+              <path d="M 80 0 L 0 0 0 80" fill="none" stroke={`url(#${isDarkMode ? 'darkGridGradient' : 'lightGridGradient'})`} strokeWidth="0.3" />
+              <circle cx="40" cy="40" r="1" fill={`url(#${isDarkMode ? 'darkGridGradient' : 'lightGridGradient'})`} />
             </pattern>
-            <linearGradient id="darkGridGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#9333EA" stopOpacity="0.3">
-                <animate attributeName="stop-opacity" values="0.3;0.6;0.3" dur="5s" repeatCount="indefinite" />
+            <linearGradient id={isDarkMode ? "darkGridGradient" : "lightGridGradient"} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={isDarkMode ? "#9333EA" : "#9333EA"} stopOpacity={isDarkMode ? "0.3" : "0.2"}>
+                <animate attributeName="stop-opacity" values={isDarkMode ? "0.3;0.6;0.3" : "0.2;0.4;0.2"} dur="5s" repeatCount="indefinite" />
               </stop>
-              <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.3">
-                <animate attributeName="stop-opacity" values="0.3;0.6;0.3" dur="5s" repeatCount="indefinite" />
+              <stop offset="100%" stopColor={isDarkMode ? "#3B82F6" : "#3B82F6"} stopOpacity={isDarkMode ? "0.3" : "0.2"}>
+                <animate attributeName="stop-opacity" values={isDarkMode ? "0.3;0.6;0.3" : "0.2;0.4;0.2"} dur="5s" repeatCount="indefinite" />
               </stop>
             </linearGradient>
           </defs>
@@ -395,12 +440,12 @@ export default function About() {
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           >
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#darkGrid)" />
+            <rect x="0" y="0" width="100%" height="100%" fill={`url(#${isDarkMode ? 'darkGrid' : 'lightGrid'})`} />
           </motion.g>
         </svg>
 
-        {/* Distant Stars - Subtle */}
-        {isClient && [...Array(150)].map((_, i) => (
+        {/* Distant Stars - Theme aware opacity */}
+        {isClient && [...Array(isDarkMode ? 150 : 80)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute rounded-full"
@@ -409,8 +454,12 @@ export default function About() {
               top: `${Math.random() * 100}%`,
               width: `${Math.random() * 2}px`,
               height: `${Math.random() * 2}px`,
-              background: `rgba(255, 255, 255, ${Math.random() * 0.3})`,
-              boxShadow: `0 0 ${Math.random() * 4}px rgba(255, 255, 255, 0.2)`,
+              background: isDarkMode 
+                ? `rgba(255, 255, 255, ${Math.random() * 0.3})`
+                : `rgba(139, 92, 246, ${Math.random() * 0.2})`,
+              boxShadow: isDarkMode
+                ? `0 0 ${Math.random() * 4}px rgba(255, 255, 255, 0.2)`
+                : `0 0 ${Math.random() * 4}px rgba(139, 92, 246, 0.1)`,
             }}
             animate={{
               opacity: [0.1, 0.3, 0.1],
@@ -423,14 +472,16 @@ export default function About() {
           />
         ))}
 
-        {/* Floating Dark Geometric Shapes */}
+        {/* Floating Geometric Shapes - Theme aware */}
         <motion.div
           style={{ 
             rotate: useTransform(smoothProgress, [0, 1], [0, 360]),
             x: useTransform(smoothProgress, [0, 1], [0, 100]),
             y: useTransform(smoothProgress, [0, 1], [0, -100])
           }}
-          className="absolute top-20 left-20 w-40 h-40 border border-purple-500/10 rounded-3xl"
+          className={`absolute top-20 left-20 w-40 h-40 border rounded-3xl ${
+            isDarkMode ? 'border-purple-500/10' : 'border-purple-300/20'
+          }`}
         />
         
         <motion.div
@@ -439,34 +490,38 @@ export default function About() {
             x: useTransform(smoothProgress, [0, 1], [0, -100]),
             y: useTransform(smoothProgress, [0, 1], [0, 100])
           }}
-          className="absolute bottom-20 right-20 w-56 h-56 border border-blue-500/10 rounded-full"
+          className={`absolute bottom-20 right-20 w-56 h-56 border rounded-full ${
+            isDarkMode ? 'border-blue-500/10' : 'border-blue-300/20'
+          }`}
         />
         
         <motion.div
           style={{ 
             scale: useTransform(smoothProgress, [0, 0.5, 1], [1, 1.5, 1]),
           }}
-          className="absolute top-1/3 right-1/4 w-32 h-32 border border-pink-500/10 transform rotate-45"
+          className={`absolute top-1/3 right-1/4 w-32 h-32 border transform rotate-45 ${
+            isDarkMode ? 'border-pink-500/10' : 'border-pink-300/20'
+          }`}
         />
 
-        {/* Dark Energy Waves */}
-        <svg className="absolute inset-0 w-full h-full opacity-10">
+        {/* Energy Waves - Theme aware */}
+        <svg className="absolute inset-0 w-full h-full" style={{ opacity: isDarkMode ? 0.1 : 0.05 }}>
           <defs>
-            <linearGradient id="darkWave" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#9333EA" stopOpacity="0.1">
-                <animate attributeName="stop-opacity" values="0.1;0.2;0.1" dur="4s" repeatCount="indefinite" />
+            <linearGradient id={isDarkMode ? "darkWave" : "lightWave"} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#9333EA" stopOpacity={isDarkMode ? "0.1" : "0.05"}>
+                <animate attributeName="stop-opacity" values={isDarkMode ? "0.1;0.2;0.1" : "0.05;0.1;0.05"} dur="4s" repeatCount="indefinite" />
               </stop>
-              <stop offset="50%" stopColor="#3B82F6" stopOpacity="0.1">
-                <animate attributeName="stop-opacity" values="0.1;0.2;0.1" dur="4s" repeatCount="indefinite" />
+              <stop offset="50%" stopColor="#3B82F6" stopOpacity={isDarkMode ? "0.1" : "0.05"}>
+                <animate attributeName="stop-opacity" values={isDarkMode ? "0.1;0.2;0.1" : "0.05;0.1;0.05"} dur="4s" repeatCount="indefinite" />
               </stop>
-              <stop offset="100%" stopColor="#9333EA" stopOpacity="0.1">
-                <animate attributeName="stop-opacity" values="0.1;0.2;0.1" dur="4s" repeatCount="indefinite" />
+              <stop offset="100%" stopColor="#9333EA" stopOpacity={isDarkMode ? "0.1" : "0.05"}>
+                <animate attributeName="stop-opacity" values={isDarkMode ? "0.1;0.2;0.1" : "0.05;0.1;0.05"} dur="4s" repeatCount="indefinite" />
               </stop>
             </linearGradient>
           </defs>
           <motion.path
             d="M0,300 Q150,250 300,300 T600,300 T900,300 T1200,300 T1500,300"
-            stroke="url(#darkWave)"
+            stroke={`url(#${isDarkMode ? 'darkWave' : 'lightWave'})`}
             strokeWidth="1"
             fill="none"
             animate={{ 
@@ -480,15 +535,19 @@ export default function About() {
           />
         </svg>
 
-        {/* Dark Orbs */}
+        {/* Floating Orbs - Theme aware */}
         {[...Array(5)].map((_, i) => (
           <motion.div
-            key={`dark-orb-${i}`}
+            key={`orb-${i}`}
             className="absolute w-96 h-96 rounded-full"
             style={{
               left: `${i * 20}%`,
               top: `${(i * 15) % 100}%`,
-              background: `radial-gradient(circle at 30% 30%, ${i % 2 === 0 ? '#581c8720' : '#1e3a8a20'}, transparent 70%)`,
+              background: `radial-gradient(circle at 30% 30%, ${
+                isDarkMode 
+                  ? (i % 2 === 0 ? '#581c8720' : '#1e3a8a20')
+                  : (i % 2 === 0 ? '#c084fc30' : '#93c5fd30')
+              }, transparent 70%)`,
               filter: 'blur(60px)',
             }}
             animate={{
@@ -506,7 +565,7 @@ export default function About() {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
-        {/* Header Badge - Dark Theme */}
+        {/* Header Badge - Theme aware */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -515,10 +574,10 @@ export default function About() {
         >
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="inline-flex items-center gap-2 md:gap-3 bg-white/5 backdrop-blur-md px-4 md:px-6 py-2 md:py-3 rounded-full border border-purple-500/20 shadow-[0_0_30px_rgba(139,92,246,0.15)]"
+            className={`inline-flex items-center gap-2 md:gap-3 ${badgeBg} backdrop-blur-md px-4 md:px-6 py-2 md:py-3 rounded-full border shadow-[0_0_30px_rgba(139,92,246,0.15)]`}
           >
             <FaStar className="text-purple-400 animate-pulse text-sm md:text-base" />
-            <span className="text-xs md:text-sm font-semibold bg-gradient-to-r from-purple-400 via-blue-400 to-pink-400 bg-clip-text text-transparent">
+            <span className={`text-xs md:text-sm font-semibold bg-gradient-to-r from-purple-400 via-blue-400 to-pink-400 bg-clip-text text-transparent`}>
               Welcome to the Future of CRM
             </span>
             <motion.div
@@ -531,7 +590,7 @@ export default function About() {
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 xl:gap-24 items-center">
-          {/* Image Section - Dark Theme */}
+          {/* Image Section - Theme aware */}
           <motion.div
             initial={{ opacity: 0, x: -60 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
@@ -542,23 +601,25 @@ export default function About() {
             }}
           >
             <div className="relative z-10">
-              {/* Dark glow rings */}
+              {/* Glow rings - Theme aware */}
               <motion.div
                 animate={{ 
                   scale: [1, 1.1, 1],
                   opacity: [0.2, 0.3, 0.2],
                 }}
                 transition={{ duration: 4, repeat: Infinity }}
-                className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-pink-600/20 rounded-3xl blur-3xl"
+                className={`absolute inset-0 bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-pink-600/20 rounded-3xl blur-3xl`}
               />
               
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 className="relative overflow-hidden rounded-3xl shadow-2xl group"
               >
-                {/* Dark overlays */}
+                {/* Overlays - Theme aware */}
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 mix-blend-overlay z-10" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_transparent_30%,_rgba(0,0,0,0.5)_100%)] z-10" />
+                <div className={`absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_transparent_30%,_${
+                  isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)'
+                }_100%)] z-10`} />
                 
                 <div className="relative aspect-[4/5] w-full">
                   <Image
@@ -578,10 +639,10 @@ export default function About() {
                   className="absolute inset-0 z-20 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent"
                 />
                 
-                {/* Dark 3D borders */}
-                <div className="absolute inset-0 border border-white/5 rounded-3xl z-30" />
-                <div className="absolute inset-0 border border-purple-500/10 rounded-3xl transform translate-x-1 translate-y-1 z-30" />
-                <div className="absolute inset-0 border border-blue-500/10 rounded-3xl transform -translate-x-1 -translate-y-1 z-30" />
+                {/* 3D borders - Theme aware */}
+                <div className={`absolute inset-0 border ${isDarkMode ? 'border-white/5' : 'border-white/20'} rounded-3xl z-30`} />
+                <div className={`absolute inset-0 border border-purple-500/10 rounded-3xl transform translate-x-1 translate-y-1 z-30`} />
+                <div className={`absolute inset-0 border border-blue-500/10 rounded-3xl transform -translate-x-1 -translate-y-1 z-30`} />
                 
                 {/* Corner accents */}
                 <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-purple-500/30 rounded-tl-3xl z-30" />
@@ -591,7 +652,7 @@ export default function About() {
               </motion.div>
             </div>
 
-            {/* Floating Cards - Dark Theme */}
+            {/* Floating Cards - Theme aware */}
             <motion.div
               animate={isClient ? { 
                 y: [0, -15, 0],
@@ -602,7 +663,7 @@ export default function About() {
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
-              className="absolute -bottom-8 -left-4 md:-left-8 bg-black/40 backdrop-blur-xl shadow-2xl rounded-xl md:rounded-2xl p-4 md:p-6 z-20 border border-purple-500/20 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-all duration-300"
+              className={`absolute -bottom-8 -left-4 md:-left-8 ${floatingCardBg} shadow-2xl rounded-xl md:rounded-2xl p-4 md:p-6 z-20 border hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-all duration-300`}
               whileHover={{ scale: 1.1 }}
             >
               <div className="flex items-center gap-3 md:gap-4">
@@ -617,11 +678,11 @@ export default function About() {
                   <motion.p 
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="text-xl md:text-2xl font-bold text-white"
+                    className={`text-xl md:text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     98%
                   </motion.p>
-                  <p className="text-xs md:text-sm text-gray-300">Satisfaction Rate</p>
+                  <p className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Satisfaction Rate</p>
                 </div>
               </div>
             </motion.div>
@@ -637,7 +698,7 @@ export default function About() {
                 ease: "easeInOut",
                 delay: 1
               }}
-              className="absolute -top-8 -right-4 md:-right-8 bg-black/40 backdrop-blur-xl shadow-2xl rounded-xl md:rounded-2xl p-4 md:p-6 z-20 border border-blue-500/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-300"
+              className={`absolute -top-8 -right-4 md:-right-8 ${floatingCardBg} shadow-2xl rounded-xl md:rounded-2xl p-4 md:p-6 z-20 border hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-300`}
               whileHover={{ scale: 1.1 }}
             >
               <div className="flex items-center gap-2 md:gap-3">
@@ -655,18 +716,18 @@ export default function About() {
                   ))}
                 </motion.div>
                 <div>
-                  <p className="text-xs md:text-sm font-semibold text-blue-300">Active Users</p>
-                  <p className="text-lg md:text-xl font-bold text-white">10.5K</p>
+                  <p className={`text-xs md:text-sm font-semibold ${isDarkMode ? 'text-blue-300' : 'text-blue-600'}`}>Active Users</p>
+                  <p className={`text-lg md:text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>10.5K</p>
                 </div>
               </div>
             </motion.div>
 
-            {/* Achievement Timeline - Dark */}
+            {/* Achievement Timeline - Theme aware */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.5 }}
-              className="absolute -bottom-4 right-0 md:bottom-0 bg-black/40 backdrop-blur-xl rounded-lg md:rounded-xl p-2 md:p-3 z-20 border border-pink-500/20"
+              className={`absolute -bottom-4 right-0 md:bottom-0 ${floatingCardBg} rounded-lg md:rounded-xl p-2 md:p-3 z-20 border`}
             >
               <div className="flex gap-2 md:gap-3">
                 {achievements.map((item, i) => (
@@ -675,23 +736,23 @@ export default function About() {
                     whileHover={{ y: -5 }}
                     className="text-center"
                   >
-                    <div className="text-[10px] md:text-xs font-bold text-purple-300">{item.year}</div>
-                    <item.icon className="text-blue-300 mx-auto my-1 text-xs md:text-sm" />
-                    <div className="text-[8px] md:text-[10px] text-pink-300 hidden md:block">{item.event}</div>
+                    <div className={`text-[10px] md:text-xs font-bold ${isDarkMode ? 'text-purple-300' : 'text-purple-600'}`}>{item.year}</div>
+                    <item.icon className={`${isDarkMode ? 'text-blue-300' : 'text-blue-600'} mx-auto my-1 text-xs md:text-sm`} />
+                    <div className={`text-[8px] md:text-[10px] ${isDarkMode ? 'text-pink-300' : 'text-pink-600'} hidden md:block`}>{item.event}</div>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
           </motion.div>
 
-          {/* Content Section - Dark Theme */}
+          {/* Content Section - Theme aware */}
           <motion.div
             initial={{ opacity: 0, x: 60 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="space-y-6 md:space-y-8"
           >
-            {/* Title with Dark Theme */}
+            {/* Title with Theme aware */}
             <div className="space-y-3 md:space-y-4">
               <motion.h2 
                 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight"
@@ -700,7 +761,7 @@ export default function About() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ delay: 0.3 }}
-                  className="block text-white"
+                  className={`block ${textPrimary}`}
                 >
                   Redefining
                 </motion.span>
@@ -710,7 +771,9 @@ export default function About() {
                   transition={{ delay: 0.5 }}
                   className="bg-gradient-to-r from-purple-400 via-blue-400 to-pink-400 bg-clip-text text-transparent block"
                   style={{
-                    textShadow: '0 0 30px rgba(139,92,246,0.3)'
+                    textShadow: isDarkMode 
+                      ? '0 0 30px rgba(139,92,246,0.3)'
+                      : '0 0 20px rgba(139,92,246,0.2)'
                   }}
                 >
                   What's Possible
@@ -728,24 +791,33 @@ export default function About() {
                   animate={{ 
                     boxShadow: [
                       "0 0 0 0 rgba(139, 92, 246, 0)",
-                      "0 0 20px 5px rgba(139, 92, 246, 0.2)",
+                      `0 0 20px 5px ${isDarkMode ? 'rgba(139, 92, 246, 0.2)' : 'rgba(139, 92, 246, 0.1)'}`,
                       "0 0 0 0 rgba(139, 92, 246, 0)",
                     ]
                   }}
                   transition={{ duration: 3, repeat: Infinity }}
-                  className="absolute -left-4 top-0 w-1 h-full bg-gradient-to-b from-purple-400 to-blue-400 rounded-full hidden md:block"
+                  className={`absolute -left-4 top-0 w-1 h-full bg-gradient-to-b from-purple-400 to-blue-400 rounded-full hidden md:block`}
                 />
-                <p className="text-sm md:text-base text-gray-300 leading-relaxed pl-0 md:pl-6">
+                <p className={`text-sm md:text-base ${textSecondary} leading-relaxed pl-0 md:pl-6`}>
                   Our next-generation CRM platform combines 
                   <motion.span
                     animate={{ 
-                      color: ["#C084FC", "#60A5FA", "#F472B6", "#C084FC"],
-                      textShadow: [
-                        "0 0 10px #C084FC",
-                        "0 0 10px #60A5FA",
-                        "0 0 10px #F472B6",
-                        "0 0 10px #C084FC"
-                      ]
+                      color: isDarkMode 
+                        ? ["#C084FC", "#60A5FA", "#F472B6", "#C084FC"]
+                        : ["#9333EA", "#2563EB", "#DB2777", "#9333EA"],
+                      textShadow: isDarkMode
+                        ? [
+                            "0 0 10px #C084FC",
+                            "0 0 10px #60A5FA",
+                            "0 0 10px #F472B6",
+                            "0 0 10px #C084FC"
+                          ]
+                        : [
+                            "0 0 5px #9333EA",
+                            "0 0 5px #2563EB",
+                            "0 0 5px #DB2777",
+                            "0 0 5px #9333EA"
+                          ]
                     }}
                     transition={{ duration: 4, repeat: Infinity }}
                     className="font-semibold"
@@ -753,13 +825,22 @@ export default function About() {
                   with 
                   <motion.span
                     animate={{ 
-                      color: ["#60A5FA", "#F472B6", "#C084FC", "#60A5FA"],
-                      textShadow: [
-                        "0 0 10px #60A5FA",
-                        "0 0 10px #F472B6",
-                        "0 0 10px #C084FC",
-                        "0 0 10px #60A5FA"
-                      ]
+                      color: isDarkMode 
+                        ? ["#60A5FA", "#F472B6", "#C084FC", "#60A5FA"]
+                        : ["#2563EB", "#DB2777", "#9333EA", "#2563EB"],
+                      textShadow: isDarkMode
+                        ? [
+                            "0 0 10px #60A5FA",
+                            "0 0 10px #F472B6",
+                            "0 0 10px #C084FC",
+                            "0 0 10px #60A5FA"
+                          ]
+                        : [
+                            "0 0 5px #2563EB",
+                            "0 0 5px #DB2777",
+                            "0 0 5px #9333EA",
+                            "0 0 5px #2563EB"
+                          ]
                     }}
                     transition={{ duration: 4, repeat: Infinity, delay: 1 }}
                     className="font-semibold"
@@ -769,7 +850,7 @@ export default function About() {
               </motion.div>
             </div>
 
-            {/* Feature Grid - Dark */}
+            {/* Feature Grid - Theme aware */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 mt-4 md:mt-8">
               {features.slice(0, 6).map((feature, index) => (
                 <motion.div
@@ -779,11 +860,13 @@ export default function About() {
                   transition={{ delay: 0.8 + index * 0.1 }}
                   whileHover={{ 
                     scale: 1.05,
-                    boxShadow: "0 20px 30px -10px rgba(139,92,246,0.3)"
+                    boxShadow: isDarkMode
+                      ? "0 20px 30px -10px rgba(139,92,246,0.3)"
+                      : "0 10px 20px -5px rgba(139,92,246,0.2)"
                   }}
                   onHoverStart={() => setHoveredFeature(index)}
                   onHoverEnd={() => setHoveredFeature(null)}
-                  className="relative bg-white/5 backdrop-blur-md p-3 md:p-5 rounded-lg md:rounded-xl border border-white/5 hover:border-purple-500/30 transition-all duration-300 overflow-hidden group cursor-pointer"
+                  className={`relative ${cardBg} backdrop-blur-md p-3 md:p-5 rounded-lg md:rounded-xl border ${cardBorder} hover:border-purple-500/30 transition-all duration-300 overflow-hidden group cursor-pointer`}
                 >
                   {/* Animated background on hover */}
                   <motion.div
@@ -795,21 +878,21 @@ export default function About() {
                   />
                   
                   <feature.icon className={`${feature.iconColor} text-lg md:text-2xl mb-1 md:mb-2 relative z-10 group-hover:scale-110 transition-transform`} />
-                  <h3 className="font-semibold text-white text-xs md:text-sm relative z-10">{feature.title}</h3>
-                  <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1 relative z-10 hidden md:block">{feature.description}</p>
+                  <h3 className={`font-semibold ${textPrimary} text-xs md:text-sm relative z-10`}>{feature.title}</h3>
+                  <p className={`text-[10px] md:text-xs ${textTertiary} mt-0.5 md:mt-1 relative z-10 hidden md:block`}>{feature.description}</p>
                   
                   {/* Pulse effect */}
                   <motion.div
                     animate={{ scale: [1, 1.5, 1], opacity: [0.2, 0, 0.2] }}
                     transition={{ duration: 2, repeat: Infinity, delay: index * 0.5 }}
-                    className="absolute -bottom-2 -right-2 w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-md"
+                    className={`absolute -bottom-2 -right-2 w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-md`}
                   />
                 </motion.div>
               ))}
             </div>
 
-            {/* Stats - Dark */}
-            <div className="grid grid-cols-3 gap-4 md:gap-6 py-4 md:py-8 border-y border-white/5">
+            {/* Stats - Theme aware */}
+            <div className={`grid grid-cols-3 gap-4 md:gap-6 py-4 md:py-8 border-y ${borderColor}`}>
               {stats.map((stat, index) => (
                 <motion.div
                   key={index}
@@ -819,7 +902,7 @@ export default function About() {
                   whileHover={{ y: -5 }}
                   className="text-center relative"
                 >
-                  <stat.icon className="mx-auto text-gray-500 mb-1 md:mb-2 text-lg md:text-xl group-hover:text-purple-400 transition-colors" />
+                  <stat.icon className={`mx-auto ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} mb-1 md:mb-2 text-lg md:text-xl group-hover:text-purple-400 transition-colors`} />
                   <motion.div 
                     className="text-lg md:text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"
                     animate={{ scale: [1, 1.1, 1] }}
@@ -827,12 +910,12 @@ export default function About() {
                   >
                     {isClient ? <Counter value={stat.value} suffix={stat.suffix} /> : stat.value + stat.suffix}
                   </motion.div>
-                  <div className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">{stat.label}</div>
+                  <div className={`text-[10px] md:text-xs ${textTertiary} mt-0.5 md:mt-1`}>{stat.label}</div>
                 </motion.div>
               ))}
             </div>
 
-            {/* Testimonial Carousel - Dark */}
+            {/* Testimonial Carousel - Theme aware */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -846,16 +929,16 @@ export default function About() {
                     initial={{ opacity: 0, x: 100 }}
                     animate={activeTestimonial === i ? { opacity: 1, x: 0 } : { opacity: 0, x: -100 }}
                     transition={{ duration: 0.5 }}
-                    className="absolute inset-0 bg-white/5 backdrop-blur-md p-3 md:p-4 rounded-lg md:rounded-xl border border-white/5"
+                    className={`absolute inset-0 ${testimonialBg} backdrop-blur-md p-3 md:p-4 rounded-lg md:rounded-xl border`}
                   >
                     <div className="flex gap-0.5 md:gap-1 mb-1 md:mb-2">
                       {[...Array(testimonial.rating)].map((_, i) => (
                         <FaStar key={i} className="text-yellow-500/70 text-xs" />
                       ))}
                     </div>
-                    <p className="text-xs md:text-sm text-gray-300 mb-1 md:mb-2 line-clamp-2">"{testimonial.text}"</p>
-                    <p className="text-[10px] md:text-xs font-semibold text-white">{testimonial.author}</p>
-                    <p className="text-[8px] md:text-[10px] text-gray-400">{testimonial.role}</p>
+                    <p className={`text-xs md:text-sm ${textSecondary} mb-1 md:mb-2 line-clamp-2`}>"{testimonial.text}"</p>
+                    <p className={`text-[10px] md:text-xs font-semibold ${textPrimary}`}>{testimonial.author}</p>
+                    <p className={`text-[8px] md:text-[10px] ${textTertiary}`}>{testimonial.role}</p>
                   </motion.div>
                 ))}
               </div>
@@ -869,14 +952,14 @@ export default function About() {
                     className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all ${
                       activeTestimonial === i 
                         ? 'bg-gradient-to-r from-purple-400 to-blue-400 w-4 md:w-6 shadow-[0_0_10px_rgba(139,92,246,0.3)]' 
-                        : 'bg-gray-600'
+                        : isDarkMode ? 'bg-gray-600' : 'bg-gray-300'
                     }`}
                   />
                 ))}
               </div>
             </motion.div>
 
-            {/* CTA Button - Dark */}
+            {/* CTA Button - Theme aware */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
