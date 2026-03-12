@@ -1,0 +1,839 @@
+"use client";
+
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
+import { 
+  FaFacebookF, FaTwitter, FaLinkedinIn, FaGithub, 
+  FaHeart, FaRocket, FaShieldAlt, FaGlobe, FaBolt,
+  FaCrown, FaStar, FaArrowRight, FaCheck, FaSparkles
+} from "react-icons/fa";
+import { FiArrowUpRight, FiMail, FiMapPin, FiClock } from "react-icons/fi";
+import { HiOutlineSparkles } from "react-icons/hi";
+import { BsStars } from "react-icons/bs";
+
+export default function Footer() {
+  const currentYear = new Date().getFullYear();
+  const footerRef = useRef(null);
+  const [email, setEmail] = useState("");
+  const [isHovered, setIsHovered] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  
+  // Parallax scroll effects
+  const { scrollYProgress } = useScroll({
+    target: footerRef,
+    offset: ["start end", "end start"]
+  });
+  
+  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.8, 1, 1, 0.9]);
+  
+  // Mouse follower effect - only on client
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springConfig = { damping: 25, stiffness: 200 };
+  const springX = useSpring(mouseX, springConfig);
+  const springY = useSpring(mouseY, springConfig);
+
+  useEffect(() => {
+    setMounted(true);
+    
+    const handleMouseMove = (e) => {
+      if (footerRef.current) {
+        const rect = footerRef.current.getBoundingClientRect();
+        mouseX.set(e.clientX - rect.left);
+        mouseY.set(e.clientY - rect.top);
+      }
+    };
+    
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [mouseX, mouseY]);
+
+  // Fixed values for SSR - no Math.random()
+  const particles = [
+    { id: 0, x: 10, y: 20, size: 2, type: 0 },
+    { id: 1, x: 25, y: 45, size: 3, type: 1 },
+    { id: 2, x: 40, y: 70, size: 1.5, type: 2 },
+    { id: 3, x: 55, y: 15, size: 2.5, type: 0 },
+    { id: 4, x: 70, y: 85, size: 2, type: 1 },
+    { id: 5, x: 85, y: 30, size: 3.5, type: 2 },
+    { id: 6, x: 15, y: 60, size: 2, type: 0 },
+    { id: 7, x: 45, y: 90, size: 2.5, type: 1 },
+    { id: 8, x: 65, y: 40, size: 3, type: 2 },
+    { id: 9, x: 95, y: 75, size: 1.5, type: 0 },
+    { id: 10, x: 5, y: 50, size: 2, type: 1 },
+    { id: 11, x: 35, y: 25, size: 2.5, type: 2 },
+    { id: 12, x: 75, y: 10, size: 3, type: 0 },
+    { id: 13, x: 50, y: 95, size: 2, type: 1 },
+    { id: 14, x: 20, y: 80, size: 2.5, type: 2 },
+  ];
+
+  // Fixed lines for SSR
+  const lines = [
+    { id: 0, x1: 10, y1: 20, x2: 30, y2: 40 },
+    { id: 1, x1: 50, y1: 60, x2: 70, y2: 80 },
+    { id: 2, x1: 80, y1: 10, x2: 40, y2: 50 },
+    { id: 3, x1: 20, y1: 70, x2: 90, y2: 30 },
+    { id: 4, x1: 60, y1: 40, x2: 30, y2: 85 },
+    { id: 5, x1: 45, y1: 15, x2: 75, y2: 65 },
+    { id: 6, x1: 85, y1: 55, x2: 25, y2: 95 },
+    { id: 7, x1: 15, y1: 35, x2: 55, y2: 75 },
+  ];
+
+  // Fixed stars for SSR
+  const stars = Array.from({ length: 50 }, (_, i) => ({
+    id: i,
+    x: (i * 7) % 100,
+    y: (i * 13) % 100,
+    size: ((i % 3) + 1) * 0.5,
+    delay: (i % 5) * 0.2,
+  }));
+
+  // Fixed orbs for SSR
+  const orbs = [
+    { id: 0, left: 10, top: 20, width: 250, height: 250, color: 'purple', delay: 0 },
+    { id: 1, left: 70, top: 60, width: 200, height: 200, color: 'pink', delay: 2 },
+    { id: 2, left: 40, top: 30, width: 300, height: 300, color: 'blue', delay: 4 },
+    { id: 3, left: 80, top: 10, width: 220, height: 220, color: 'purple', delay: 1 },
+    { id: 4, left: 20, top: 80, width: 280, height: 280, color: 'pink', delay: 3 },
+    { id: 5, left: 55, top: 45, width: 180, height: 180, color: 'blue', delay: 5 },
+  ];
+
+  // Fixed clouds for SSR
+  const clouds = [
+    { id: 0, left: 5, top: 10, width: 400, height: 400, color: 'purple' },
+    { id: 1, left: 35, top: 40, width: 400, height: 400, color: 'pink' },
+    { id: 2, left: 65, top: 20, width: 400, height: 400, color: 'blue' },
+    { id: 3, left: 25, top: 70, width: 400, height: 400, color: 'purple' },
+  ];
+
+  // Animated features
+  const features = [
+    { icon: FaBolt, text: "Lightning Fast", color: "yellow" },
+    { icon: FaShieldAlt, text: "Bank-Level Security", color: "green" },
+    { icon: FaGlobe, text: "Global Infrastructure", color: "blue" },
+    { icon: FaHeart, text: "99.9% Uptime", color: "red" }
+  ];
+
+  // Don't render complex animations on server
+  if (!mounted) {
+    return (
+      <footer className="relative bg-[#030014] text-gray-300 pt-24 pb-8 border-t border-purple-500/30">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          {/* Simple static footer for SSR */}
+          <div className="grid lg:grid-cols-5 gap-12 mb-20">
+            <div className="lg:col-span-2">
+              <div className="text-5xl font-extrabold mb-4">CRM</div>
+              <p className="text-gray-400 max-w-md">The next-generation SaaS platform.</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
+  return (
+    <footer 
+      ref={footerRef}
+      className="relative bg-[#030014] text-gray-300 pt-24 pb-8 overflow-hidden border-t border-purple-500/30"
+    >
+      {/* ===== SPECTACULAR BACKGROUND DESIGN ===== */}
+      
+      {/* 1. Deep cosmic gradient base */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1a0b2e_0%,_#030014_50%),_radial-gradient(ellipse_at_bottom,_#0f172a_0%,_#030014_100%)]"></div>
+      
+      {/* 2. Animated aurora borealis effect */}
+      <motion.div 
+        className="absolute inset-0 opacity-30"
+        animate={{
+          background: [
+            "radial-gradient(circle at 20% 50%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 80% 50%, #ec4899 0%, transparent 50%)",
+            "radial-gradient(circle at 30% 40%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 70% 60%, #ec4899 0%, transparent 50%)",
+            "radial-gradient(circle at 20% 50%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 80% 50%, #ec4899 0%, transparent 50%)",
+          ]
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+      
+      {/* 3. Twinkling stars background */}
+      <div className="absolute inset-0">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          {stars.map((star) => (
+            <motion.circle
+              key={`star-${star.id}`}
+              cx={`${star.x}%`}
+              cy={`${star.y}%`}
+              r={star.size}
+              fill="rgba(255, 255, 255, 0.5)"
+              animate={{
+                opacity: [0.2, 1, 0.2],
+                scale: [1, 1.5, 1],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                delay: star.delay,
+              }}
+            />
+          ))}
+        </svg>
+      </div>
+      
+      {/* 4. Floating glowing orbs with trails */}
+      {orbs.map((orb) => (
+        <motion.div
+          key={`orb-${orb.id}`}
+          className="absolute rounded-full blur-3xl"
+          style={{
+            width: orb.width,
+            height: orb.height,
+            background: `radial-gradient(circle at center, 
+              ${orb.color === 'purple' ? '#8b5cf6' : orb.color === 'pink' ? '#ec4899' : '#3b82f6'}40, 
+              transparent 70%)`,
+            left: `${orb.left}%`,
+            top: `${orb.top}%`,
+          }}
+          animate={{
+            x: [0, orb.id % 2 === 0 ? 50 : -40, 0],
+            y: [0, orb.id % 3 === 0 ? -40 : 30, 0],
+            scale: [1, 1.3, 1],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{
+            duration: 15 + orb.id,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+      
+      {/* 5. Animated constellation lines */}
+      <svg className="absolute inset-0 w-full h-full opacity-20">
+        {lines.map((line) => (
+          <motion.line
+            key={`line-${line.id}`}
+            x1={`${line.x1}%`}
+            y1={`${line.y1}%`}
+            x2={`${line.x2}%`}
+            y2={`${line.y2}%`}
+            stroke={`url(#lineGrad-${line.id % 3})`}
+            strokeWidth="0.5"
+            strokeDasharray="5,5"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 0.3 }}
+            transition={{
+              duration: 15 + line.id,
+              repeat: Infinity,
+              delay: line.id * 0.5,
+              repeatType: "reverse"
+            }}
+          />
+        ))}
+        <defs>
+          <linearGradient id="lineGrad-0" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#ec4899" />
+          </linearGradient>
+          <linearGradient id="lineGrad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#8b5cf6" />
+          </linearGradient>
+          <linearGradient id="lineGrad-2" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ec4899" />
+            <stop offset="100%" stopColor="#3b82f6" />
+          </linearGradient>
+        </defs>
+      </svg>
+      
+      {/* 6. Floating particles with different shapes */}
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute pointer-events-none"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            width: particle.size * 2,
+            height: particle.size * 2,
+          }}
+          animate={{
+            y: [0, -30, 0],
+            x: [0, (particle.id % 2 === 0 ? 20 : -20), 0],
+            rotate: [0, 360],
+            opacity: [0.1, 0.5, 0.1],
+          }}
+          transition={{
+            duration: 10 + particle.id,
+            repeat: Infinity,
+            delay: particle.id * 0.3,
+            ease: "easeInOut"
+          }}
+        >
+          {particle.type === 0 && (
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L15 9H22L16 14L19 21L12 16.5L5 21L8 14L2 9H9L12 2Z" 
+                fill={particle.id % 3 === 0 ? '#8b5cf6' : particle.id % 3 === 1 ? '#ec4899' : '#3b82f6'} 
+                opacity="0.5"/>
+            </svg>
+          )}
+          {particle.type === 1 && (
+            <div className={`w-full h-full rounded-full ${
+              particle.id % 3 === 0 ? 'bg-purple-400' : 
+              particle.id % 3 === 1 ? 'bg-pink-400' : 
+              'bg-blue-400'
+            } opacity-30 blur-[1px]`} />
+          )}
+          {particle.type === 2 && (
+            <div className={`w-full h-full rotate-45 ${
+              particle.id % 3 === 0 ? 'bg-purple-400' : 
+              particle.id % 3 === 1 ? 'bg-pink-400' : 
+              'bg-blue-400'
+            } opacity-30`} style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} />
+          )}
+        </motion.div>
+      ))}
+      
+      {/* 7. Animated gradient mesh */}
+      <div className="absolute inset-0 opacity-30">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="mesh" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+              <motion.path
+                d="M40 0 L0 0 0 40"
+                stroke="url(#meshGrad)"
+                strokeWidth="0.5"
+                fill="none"
+                animate={{
+                  d: [
+                    "M40 0 L0 0 0 40",
+                    "M40 5 L5 0 0 35",
+                    "M40 0 L0 0 0 40"
+                  ]
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </pattern>
+            <linearGradient id="meshGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
+              <stop offset="50%" stopColor="#ec4899" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
+            </linearGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#mesh)" />
+        </svg>
+      </div>
+      
+      {/* 8. Animated light beams */}
+      {[0, 1, 2, 3, 4].map((i) => (
+        <motion.div
+          key={`beam-${i}`}
+          className="absolute top-0 bottom-0 w-32 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12"
+          style={{ left: `${i * 25}%` }}
+          animate={{
+            x: ['-100%', '200%'],
+            opacity: [0, 0.5, 0],
+          }}
+          transition={{
+            duration: 4 + i,
+            repeat: Infinity,
+            delay: i * 2,
+            ease: "linear"
+          }}
+        />
+      ))}
+      
+      {/* 9. Glowing dots grid */}
+      <div className="absolute inset-0" style={{ 
+        backgroundImage: `
+          radial-gradient(circle at 20px 20px, rgba(139, 92, 246, 0.1) 1px, transparent 1px),
+          radial-gradient(circle at 60px 60px, rgba(236, 72, 153, 0.1) 1px, transparent 1px)
+        `,
+        backgroundSize: '80px 80px, 120px 120px'
+      }} />
+      
+      {/* 10. Animated mouse follower with enhanced effect */}
+      <motion.div
+        className="absolute pointer-events-none inset-0"
+        style={{
+          background: `radial-gradient(circle at ${springX}px ${springY}px, 
+            rgba(139, 92, 246, 0.2) 0%, 
+            rgba(236, 72, 153, 0.1) 30%, 
+            transparent 60%)`,
+        }}
+      />
+      
+      {/* 11. Floating nebula clouds */}
+      {clouds.map((cloud) => (
+        <motion.div
+          key={`cloud-${cloud.id}`}
+          className="absolute rounded-full blur-[100px] mix-blend-screen"
+          style={{
+            width: cloud.width,
+            height: cloud.height,
+            background: `radial-gradient(circle at center, 
+              ${cloud.color === 'purple' ? '#8b5cf6' : cloud.color === 'pink' ? '#ec4899' : '#3b82f6'}20, 
+              transparent 70%)`,
+            left: `${cloud.left}%`,
+            top: `${cloud.top}%`,
+          }}
+          animate={{
+            x: [0, 40, -20, 0],
+            y: [0, -30, 20, 0],
+            scale: [1, 1.2, 0.9, 1],
+          }}
+          transition={{
+            duration: 20 + cloud.id * 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+      
+      {/* 12. Animated corner accents */}
+      <div className="absolute top-0 left-0 w-64 h-64">
+        <motion.div 
+          className="absolute top-0 left-0 w-32 h-32 border-t-2 border-l-2 border-purple-500/30 rounded-tl-3xl"
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{ duration: 4, repeat: Infinity }}
+        />
+      </div>
+      <div className="absolute top-0 right-0 w-64 h-64">
+        <motion.div 
+          className="absolute top-0 right-0 w-32 h-32 border-t-2 border-r-2 border-pink-500/30 rounded-tr-3xl"
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{ duration: 4, repeat: Infinity, delay: 1 }}
+        />
+      </div>
+      <div className="absolute bottom-0 left-0 w-64 h-64">
+        <motion.div 
+          className="absolute bottom-0 left-0 w-32 h-32 border-b-2 border-l-2 border-blue-500/30 rounded-bl-3xl"
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{ duration: 4, repeat: Infinity, delay: 2 }}
+        />
+      </div>
+      <div className="absolute bottom-0 right-0 w-64 h-64">
+        <motion.div 
+          className="absolute bottom-0 right-0 w-32 h-32 border-b-2 border-r-2 border-purple-500/30 rounded-br-3xl"
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{ duration: 4, repeat: Infinity, delay: 3 }}
+        />
+      </div>
+      
+      {/* 13. Vignette effect */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_30%,_#030014_100%)] pointer-events-none"></div>
+      
+      {/* 14. Subtle noise texture */}
+      <div className="absolute inset-0 opacity-20 mix-blend-overlay" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E")`,
+        backgroundRepeat: 'repeat',
+      }} />
+
+      {/* ===== END BACKGROUND DESIGN ===== */}
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+        {/* TOP SECTION WITH NEWSLETTER AND STATS */}
+        <motion.div 
+          style={{ y, opacity, scale }}
+          className="grid lg:grid-cols-5 gap-12 mb-20"
+        >
+          
+          {/* BRAND - WITH ANIMATED COUNTERS */}
+          <div className="lg:col-span-2">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, type: "spring" }}
+              viewport={{ once: true }}
+            >
+              <motion.h2 
+                className="text-5xl font-extrabold mb-4 tracking-tight"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+                  CRM
+                </span>
+                <motion.span
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                  className="inline-block ml-1"
+                >
+                  <BsStars className="text-purple-400 text-3xl" />
+                </motion.span>
+              </motion.h2>
+              
+              <p className="text-gray-400 leading-relaxed max-w-md mb-6">
+                The next-generation SaaS platform that empowers businesses to scale faster with intelligent automation and real-time insights.
+              </p>
+              
+              {/* STATS */}
+              <div className="flex gap-6 mb-6">
+                {[
+                  { value: "10K+", label: "Customers" },
+                  { value: "99.9%", label: "Uptime" },
+                  { value: "24/7", label: "Support" }
+                ].map((stat, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className="text-2xl font-bold text-white">{stat.value}</div>
+                    <div className="text-xs text-gray-500">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </div>
+              
+              {/* SOCIAL ICONS - WITH RIPPLE EFFECT */}
+              <div className="flex gap-3">
+                {[
+                  { icon: FaFacebookF, label: "Facebook" },
+                  { icon: FaTwitter, label: "Twitter" },
+                  { icon: FaLinkedinIn, label: "LinkedIn" },
+                  { icon: FaGithub, label: "GitHub" },
+                ].map((social, idx) => (
+                  <motion.a
+                    key={idx}
+                    href="#"
+                    whileHover={{ scale: 1.15, rotate: 5 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="group relative w-11 h-11 bg-white/5 backdrop-blur-sm rounded-xl flex items-center justify-center text-gray-400 hover:text-white border border-white/10 hover:border-purple-400/50 transition-all duration-300"
+                    aria-label={social.label}
+                  >
+                    <social.icon className="text-base" />
+                    <motion.span 
+                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileHover={{ opacity: 1, scale: 1.2 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                    {/* Ripple effect */}
+                    <motion.span
+                      className="absolute inset-0 rounded-xl border-2 border-purple-400/30"
+                      animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: idx * 0.3 }}
+                    />
+                  </motion.a>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* ENHANCED NEWSLETTER WITH ANIMATION */}
+          <div className="lg:col-span-3">
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, type: "spring", delay: 0.2 }}
+              viewport={{ once: true }}
+              whileHover={{ boxShadow: "0 25px 50px -12px rgba(168, 85, 247, 0.5)" }}
+              className="bg-gradient-to-br from-purple-900/40 via-pink-900/30 to-blue-900/40 backdrop-blur-xl p-8 rounded-3xl border border-purple-500/30 shadow-2xl relative overflow-hidden group"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              {/* Animated background pattern */}
+              <motion.div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                animate={{
+                  background: isHovered 
+                    ? "radial-gradient(circle at 30% 50%, rgba(168, 85, 247, 0.2), transparent 50%)"
+                    : "none"
+                }}
+              />
+              
+              <motion.div
+                animate={{
+                  rotate: isHovered ? [0, 360] : 0
+                }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-full blur-2xl"
+              />
+              
+              <div className="relative">
+                <motion.div 
+                  className="flex items-center gap-3 mb-4"
+                  animate={{ x: isHovered ? [0, 5, -5, 0] : 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <FaRocket className="text-purple-400 text-2xl" />
+                  <h3 className="text-2xl font-semibold text-white">
+                    Stay ahead of the curve
+                  </h3>
+                  <HiOutlineSparkles className="text-yellow-400 text-xl" />
+                </motion.div>
+                
+                <p className="text-gray-300 mb-6">
+                  Join 10,000+ subscribers getting product updates, industry insights, and exclusive offers.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1 relative">
+                    <input 
+                      type="email" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email" 
+                      className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all pr-12"
+                    />
+                    <FiMail className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                  </div>
+                  
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-xl shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      Subscribe
+                      <FiArrowUpRight className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    </span>
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-500"
+                      animate={{
+                        x: ["0%", "100%"],
+                      }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      style={{ opacity: 0.3 }}
+                    />
+                  </motion.button>
+                </div>
+                
+                {/* Features list */}
+                <motion.div 
+                  className="flex flex-wrap gap-4 mt-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  {features.map((feature, idx) => (
+                    <motion.div
+                      key={idx}
+                      className="flex items-center gap-2 text-sm text-gray-400"
+                      whileHover={{ scale: 1.05, color: "#fff" }}
+                    >
+                      <feature.icon className={`text-${feature.color}-400`} />
+                      <span>{feature.text}</span>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* LINKS GRID - WITH STAGGER ANIMATION */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 py-8 border-t border-white/5">
+          
+          {[
+            {
+              title: "Product",
+              links: ["Features", "Pricing", "Integrations", "Updates", "Roadmap"],
+              badges: { "Roadmap": "new" }
+            },
+            {
+              title: "Company",
+              links: ["About", "Blog", "Careers", "Press", "Partners"],
+              badges: { "Careers": "hiring" }
+            },
+            {
+              title: "Support",
+              links: ["Help Center", "Documentation", "API Status", "Security", "Compliance"],
+              badges: { "API Status": "live" }
+            },
+            {
+              title: "Legal",
+              links: ["Privacy Policy", "Terms of Service", "Cookie Policy", "GDPR", "DPA"],
+            }
+          ].map((section, sectionIdx) => (
+            <motion.div
+              key={section.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: sectionIdx * 0.1 }}
+              viewport={{ once: true }}
+            >
+              <h3 className="text-lg font-semibold text-white mb-5 flex items-center gap-2">
+                <motion.span 
+                  className="w-1 h-4 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full"
+                  animate={{
+                    height: [16, 20, 16],
+                    opacity: [0.5, 1, 0.5]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: sectionIdx * 0.3
+                  }}
+                />
+                {section.title}
+              </h3>
+              <ul className="space-y-3">
+                {section.links.map((item, idx) => (
+                  <motion.li 
+                    key={item}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: (sectionIdx * 0.1) + (idx * 0.05) }}
+                    whileHover={{ x: 5 }}
+                  >
+                    <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200 flex items-center gap-2 group">
+                      <motion.span
+                        className="w-1 h-1 bg-purple-400 rounded-full opacity-0 group-hover:opacity-100"
+                        animate={{
+                          scale: [1, 1.5, 1],
+                        }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                        }}
+                      />
+                      {item}
+                      {section.badges?.[item] && (
+                        <motion.span 
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                            section.badges[item] === "hiring" 
+                              ? "bg-green-500/20 text-green-400 border-green-500/30"
+                              : section.badges[item] === "new"
+                              ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
+                              : "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                          }`}
+                          animate={{
+                            scale: [1, 1.1, 1],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                          }}
+                        >
+                          {section.badges[item]}
+                        </motion.span>
+                      )}
+                      <FiArrowUpRight className="opacity-0 group-hover:opacity-100 text-xs transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </a>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* BOTTOM BAR - WITH CONTACT INFO AND TRUST BADGES */}
+        <motion.div 
+          className="border-t border-white/5 mt-12 pt-8 flex flex-col lg:flex-row items-center justify-between gap-6"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          viewport={{ once: true }}
+        >
+          
+          {/* COPYRIGHT */}
+          <div className="text-gray-400 text-sm flex items-center gap-2">
+            <span>© {currentYear} CRM Platform.</span>
+            <motion.span 
+              className="flex items-center gap-1"
+              animate={{
+                color: ["#9ca3af", "#c084fc", "#9ca3af"]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity
+              }}
+            >
+              All rights reserved.
+            </motion.span>
+          </div>
+
+          {/* CONTACT INFO */}
+          <div className="flex items-center gap-6 text-sm text-gray-400">
+            <motion.div 
+              className="flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+            >
+              <FiMapPin className="text-purple-400" />
+              <span>India</span>
+            </motion.div>
+            <motion.div 
+              className="flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+            >
+              <FiClock className="text-purple-400" />
+              <span>24/7 Support</span>
+            </motion.div>
+          </div>
+
+          {/* TRUST BADGES */}
+          <div className="flex gap-4">
+            {["ISO 27001", "SOC 2", "GDPR"].map((badge, idx) => (
+              <motion.div
+                key={badge}
+                className="px-3 py-1 bg-white/5 rounded-full text-xs text-gray-400 border border-white/10"
+                whileHover={{ scale: 1.1, backgroundColor: "rgba(168, 85, 247, 0.2)" }}
+                animate={{
+                  y: [0, -2, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  delay: idx * 0.3
+                }}
+              >
+                {badge}
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* MADE WITH LOVE ANIMATION */}
+        <motion.div 
+          className="mt-8 text-center text-xs text-gray-600 flex items-center justify-center gap-1"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          whileHover={{ scale: 1.1 }}
+        >
+          <span>Made with</span>
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              color: ["#ef4444", "#f97316", "#ef4444"]
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity
+            }}
+          >
+            <FaHeart className="text-red-500" />
+          </motion.div>
+          <span>by the CRM team</span>
+        </motion.div>
+      </div>
+    </footer>
+  );
+}
